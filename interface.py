@@ -274,7 +274,7 @@ section[data-testid="stSidebar"] .mode-btn-active::before { content: "▶  "; fo
 # =============================================================================
 # QUERY PARAM NAVIGATION (must run before session state defaults)
 # =============================================================================
-if st.query_params.get("page") == "upload":
+if st.query_params.get("go") == "cv":
     st.query_params.clear()
     st.session_state["step"] = "upload"
     st.rerun()

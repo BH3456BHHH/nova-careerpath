@@ -290,7 +290,7 @@ def landing_page():
         <a class="lp-nav-link" href="#section-steps">How it works</a>
         <a class="lp-nav-link" href="#section-features">Features</a>
         <a class="lp-nav-link" href="#section-faq">FAQ</a>
-        <a class="lp-nav-cta" href="?page=upload" target="_top">Analyse my CV &rarr;</a>
+        <a class="lp-nav-cta" href="?go=cv" target="_top">Analyse my CV &rarr;</a>
       </div>
     </nav>
     """, unsafe_allow_html=True)
@@ -301,7 +301,7 @@ def landing_page():
       <div class="lp-badge">&#9733;&nbsp; Built for Nova SBE Students</div>
       <h1 class="lp-h1">Your CV, <span class="lp-accent">recruiter-ready</span><br>in 60 seconds.</h1>
       <p class="lp-sub">Upload your PDF and get expert-level feedback across 13 dimensions — then discover your exact path to your dream career.</p>
-      <a class="lp-hero-cta" href="?page=upload" target="_top">Analyse my CV &rarr;</a>
+      <a class="lp-hero-cta" href="?go=cv" target="_top">Analyse my CV &rarr;</a>
       <p class="lp-hero-note">Free &nbsp;·&nbsp; No sign-up &nbsp;·&nbsp; PDF only</p>
       <div class="lp-stats">
         <div class="lp-stat"><div class="lp-stat-n">13</div><div class="lp-stat-l">Scoring dimensions</div></div>
@@ -511,7 +511,7 @@ def landing_page():
       <div class="lp-cta-box reveal">
         <h2 class="lp-cta-h2">Ready to stand out?</h2>
         <p class="lp-cta-p">Upload your CV now and get your full score in under 60 seconds.<br>Free. No sign-up. No jargon.</p>
-        <a class="lp-cta-btn" href="?page=upload" target="_top">Analyse my CV &rarr;</a>
+        <a class="lp-cta-btn" href="?go=cv" target="_top">Analyse my CV &rarr;</a>
       </div>
     </div>
     """, unsafe_allow_html=True)
@@ -536,10 +536,10 @@ def landing_page():
                 var doc = window.parent.document;
 
                 // ── CTA navigation — intercept all upload buttons ──
-                doc.querySelectorAll('a[href*="page=upload"], .lp-hero-cta, .lp-nav-cta, .lp-cta-btn').forEach(function(btn) {
+                doc.querySelectorAll('a[href*="go=cv"], .lp-hero-cta, .lp-nav-cta, .lp-cta-btn').forEach(function(btn) {
                     btn.addEventListener('click', function(e) {
                         e.preventDefault();
-                        window.parent.location.href = window.parent.location.pathname + '?page=upload';
+                        window.parent.location.href = window.parent.location.pathname + '?go=cv';
                     });
                 });
 
