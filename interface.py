@@ -283,7 +283,7 @@ if st.query_params.get("go") == "cv":
 # SESSION STATE
 # =============================================================================
 for k, v in {
-    "step":       "landing",
+    "step":       "upload",
     "cv_result":  None,
     "career_key": "consulting",
     "cv_tab":     "overview",
