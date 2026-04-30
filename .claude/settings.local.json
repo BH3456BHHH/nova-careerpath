@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import ast; [ast.parse\\(open\\(f\\).read\\(\\)\\) and print\\(f'OK: {f}'\\) for f in ['interface.py','landing.py','cv_score.py','logic.py','data.py','cv_keywords.py']]\")",
+      "Bash(python -c ' *)"
+    ]
+  }
+}
