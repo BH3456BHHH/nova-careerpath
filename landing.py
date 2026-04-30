@@ -266,12 +266,6 @@ div[data-testid="stButton"] > button {
 
 
 def landing_page():
-    # ── Handle query-param navigation (from HTML CTAs) ──
-    if st.query_params.get("page") == "upload":
-        st.query_params.clear()
-        st.session_state.step = "upload"
-        st.rerun()
-
     st.markdown(LANDING_CSS, unsafe_allow_html=True)
 
     # ── NAVBAR (pure HTML — no column split) ──
