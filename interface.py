@@ -2072,22 +2072,6 @@ def _results():
 # LANDING
 # =============================================================================
 if st.session_state.step == "landing":
-    st.markdown("""
-    <style>
-    section[data-testid="stSidebar"] { background: #0A1628 !important; min-width: 220px !important; }
-    section[data-testid="stSidebar"] button[kind="primary"] {
-        background: #1A56DB !important; border: none !important;
-        font-size: 15px !important; font-weight: 700 !important;
-        padding: 14px !important; border-radius: 10px !important;
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    with st.sidebar:
-        st.markdown("<div style='padding:20px 0 6px;font-size:20px;font-weight:900;color:white;'>CareerPath</div>", unsafe_allow_html=True)
-        st.markdown("<div style='font-size:11px;color:#3A6888;margin-bottom:20px;'>Nova SBE · CV Intelligence</div>", unsafe_allow_html=True)
-        if st.button("Analyse my CV →", type="primary", use_container_width=True, key="landing_sidebar_cta"):
-            st.session_state.step = "upload"
-            st.rerun()
     st.markdown(LANDING_CSS, unsafe_allow_html=True)
     landing_page()
 

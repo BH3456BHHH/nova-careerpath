@@ -535,6 +535,14 @@ def landing_page():
             try {
                 var doc = window.parent.document;
 
+                // ── CTA navigation — intercept all upload buttons ──
+                doc.querySelectorAll('a[href*="page=upload"], .lp-hero-cta, .lp-nav-cta, .lp-cta-btn').forEach(function(btn) {
+                    btn.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        window.parent.location.href = window.parent.location.pathname + '?page=upload';
+                    });
+                });
+
                 // ── Smooth scroll for all anchor links ──
                 doc.querySelectorAll('a[href^="#"]').forEach(function(a) {
                     a.addEventListener('click', function(e) {
