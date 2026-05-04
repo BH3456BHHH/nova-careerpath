@@ -2137,12 +2137,11 @@ elif st.session_state.step == "upload":
     li[role="option"]:hover {
         background: #EFF6FF !important;
     }
-    /* File uploader container */
+    /* File uploader — nuclear fix for doubled text */
     div[data-testid="stFileUploader"],
     div[data-testid="stFileUploader"] > div,
     div[data-testid="stFileUploaderDropzone"] {
         background: white !important;
-        background-color: white !important;
     }
     div[data-testid="stFileUploaderDropzone"] {
         border: 2px dashed #BFDBFE !important;
@@ -2150,37 +2149,31 @@ elif st.session_state.step == "upload":
         padding: 24px 20px !important;
     }
     div[data-testid="stFileUploaderDropzone"]:hover {
-        border-color: #1A56DB !important;
-        background: #F0F6FF !important;
+        border-color: #1A56DB !important; background: #F0F6FF !important;
     }
-    /* Text inside uploader — NOT button */
-    div[data-testid="stFileUploader"] p,
-    div[data-testid="stFileUploader"] small { color: #889AAA !important; }
-    /* Upload button — white text, blue bg */
-    div[data-testid="stFileUploader"] button {
-        background: #1A56DB !important;
-        color: white !important;
-        border-radius: 8px !important;
-        border: none !important;
-        font-weight: 700 !important;
-        font-size: 14px !important;
+    /* Make ALL text in dropzone invisible by default */
+    div[data-testid="stFileUploaderDropzone"] span,
+    div[data-testid="stFileUploaderDropzone"] p,
+    div[data-testid="stFileUploaderDropzone"] div { font-size: 0 !important; color: transparent !important; }
+    /* Restore button */
+    div[data-testid="stFileUploaderDropzone"] button {
+        background: #1A56DB !important; color: white !important;
+        border-radius: 8px !important; border: none !important;
+        font-weight: 700 !important; font-size: 14px !important;
         padding: 8px 20px !important;
-        font-family: 'Inter', sans-serif !important;
     }
-    div[data-testid="stFileUploader"] button span,
-    div[data-testid="stFileUploader"] button p,
-    div[data-testid="stFileUploader"] button div { color: white !important; }
-    /* Hide duplicate Upload text — element right after button and native input */
-    div[data-testid="stFileUploaderDropzoneInput"] { display: none !important; }
-    div[data-testid="stFileUploaderDropzone"] button + div,
-    div[data-testid="stFileUploaderDropzone"] button + span,
-    div[data-testid="stFileUploaderDropzone"] button ~ div:not([data-testid]),
-    div[data-testid="stFileUploaderDropzone"] input[type="file"],
-    div[data-testid="stFileUploaderDropzone"] input[type="file"] + * { display: none !important; }
-    /* But keep the small limit text visible */
-    div[data-testid="stFileUploaderDropzone"] small { display: block !important; color: #889AAA !important; }
-    /* Upload icon color */
-    div[data-testid="stFileUploaderDropzone"] svg { stroke: #1A56DB !important; fill: none !important; }
+    div[data-testid="stFileUploaderDropzone"] button span,
+    div[data-testid="stFileUploaderDropzone"] button div,
+    div[data-testid="stFileUploaderDropzone"] button p {
+        font-size: 14px !important; color: white !important;
+    }
+    /* Restore size limit text */
+    div[data-testid="stFileUploaderDropzone"] small,
+    div[data-testid="stFileUploaderDropzone"] small * {
+        font-size: 12px !important; color: #889AAA !important;
+    }
+    /* Keep SVG icon */
+    div[data-testid="stFileUploaderDropzone"] svg { stroke: #1A56DB !important; fill: none !important; font-size: initial !important; }
     /* Buttons */
     div[data-testid="stButton"] > button:not([kind="primary"]) {
         background: white !important;
