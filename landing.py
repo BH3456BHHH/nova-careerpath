@@ -56,12 +56,12 @@ div[data-testid="stButton"] > button {
 }
 .lp-nav-link:hover { color: #0A1628; background: #F4F7FA; }
 .lp-nav-cta {
-    background: #0A1628; color: white; font-size: 13.5px; font-weight: 600;
-    text-decoration: none; padding: 9px 20px; border-radius: 8px;
+    background: #0A1628 !important; color: white !important; font-size: 13.5px; font-weight: 600;
+    text-decoration: none !important; padding: 9px 20px; border-radius: 8px;
     transition: background 0.15s, transform 0.1s;
     margin-left: 8px; border: none; cursor: pointer;
 }
-.lp-nav-cta:hover { background: #1A2E48; transform: translateY(-1px); color: white; }
+.lp-nav-cta:hover { background: #1A2E48 !important; transform: translateY(-1px); color: white !important; }
 
 /* ── HERO ── */
 .lp-hero {
@@ -94,14 +94,14 @@ div[data-testid="stButton"] > button {
 }
 .lp-hero-cta {
     display: inline-block;
-    background: #1A56DB; color: white;
-    font-size: 15px; font-weight: 700; text-decoration: none;
+    background: #1A56DB !important; color: white !important;
+    font-size: 15px; font-weight: 700; text-decoration: none !important;
     padding: 16px 40px; border-radius: 12px;
     box-shadow: 0 8px 28px rgba(26,86,219,0.4);
     transition: transform 0.15s, box-shadow 0.15s;
     border: none; cursor: pointer;
 }
-.lp-hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(26,86,219,0.5); color: white; }
+.lp-hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(26,86,219,0.5); color: white !important; }
 .lp-hero-note { font-size: 12px; color: #3A6888; margin-top: 14px; }
 .lp-stats {
     display: flex; justify-content: center; gap: 0;
@@ -237,14 +237,14 @@ div[data-testid="stButton"] > button {
 .lp-cta-h2 { font-size: 32px; font-weight: 800; color: white; margin-bottom: 12px; letter-spacing: -0.8px; }
 .lp-cta-p { font-size: 15px; color: #6A98C0; line-height: 1.7; margin-bottom: 32px; }
 .lp-cta-btn {
-    display: inline-block; background: #1A56DB; color: white;
-    font-size: 15px; font-weight: 700; text-decoration: none;
+    display: inline-block; background: #1A56DB !important; color: white !important;
+    font-size: 15px; font-weight: 700; text-decoration: none !important;
     padding: 16px 40px; border-radius: 12px;
     box-shadow: 0 8px 28px rgba(26,86,219,0.4);
     transition: transform 0.15s, box-shadow 0.15s;
     border: none; cursor: pointer;
 }
-.lp-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(26,86,219,0.5); color: white; }
+.lp-cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(26,86,219,0.5); color: white !important; }
 
 /* ── FOOTER ── */
 .lp-footer { background: #F7F9FC; padding: 24px 48px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #EAEFF6; }
