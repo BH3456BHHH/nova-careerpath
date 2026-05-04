@@ -90,7 +90,10 @@ div[data-testid="stButton"] > button {
 .lp-accent { color: #4B9FFF !important; }
 .lp-sub {
     font-size: 17px; color: #8BBDE0 !important; line-height: 1.7;
-    max-width: 500px; margin: 0 auto 40px; text-align: center !important;
+    max-width: 500px !important;
+    margin-top: 0 !important; margin-bottom: 40px !important;
+    margin-left: auto !important; margin-right: auto !important;
+    text-align: center !important; display: block !important;
 }
 .lp-hero-cta {
     display: inline-block;
