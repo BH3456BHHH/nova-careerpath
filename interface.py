@@ -10,7 +10,7 @@ st.set_page_config(
     page_title="Nova · CV Intelligence",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="collapsed",
+    initial_sidebar_state="expanded",
 )
 
 # =============================================================================
@@ -2183,11 +2183,15 @@ def _results():
 # =============================================================================
 if st.session_state.step == "landing":
     # Invisible native button — JS will click this when user clicks any CTA
+    # Also hide sidebar on landing page (empty, not needed there)
     st.markdown("""<style>
     div[data-testid="stButton"]:first-of-type button {
         position:fixed!important;left:-9999px!important;top:-9999px!important;
         width:1px!important;height:1px!important;opacity:0!important;
     }
+    section[data-testid="stSidebar"] { display: none !important; }
+    button[data-testid="collapsedControl"],
+    div[data-testid="collapsedControl"] { display: none !important; }
     </style>""", unsafe_allow_html=True)
     if st.button("▶", key="_nav_trigger"):
         st.session_state.step = "upload"
