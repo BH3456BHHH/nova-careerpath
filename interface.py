@@ -1904,6 +1904,7 @@ def _career_readiness(career_key):
     strengths    = data["strengths"]
     gaps         = data["gaps"]
     courses      = data["courses"]
+    clubs        = data.get("clubs", [])
     alumni       = data["alumni"]
     employers    = data["employers"]
     quick_win    = data["quick_win"]
@@ -2026,7 +2027,8 @@ def _career_readiness(career_key):
     </div>
     """, unsafe_allow_html=True)
 
-    c_courses, c_alumni, c_emp = st.columns(3, gap="medium")
+    # Row 1: Courses + Clubs
+    c_courses, c_clubs = st.columns(2, gap="large")
 
     with c_courses:
         if courses:
@@ -2045,12 +2047,40 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:4px;">📚 Nova SBE Courses</div>'
+            'text-transform:uppercase;margin-bottom:4px;">📚 Recommended Courses</div>'
             '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
-            'Most relevant for your target career</div>'
+            'Nova SBE courses most relevant for your target career</div>'
             + course_html + '</div>',
             unsafe_allow_html=True
         )
+
+    with c_clubs:
+        if clubs:
+            clubs_html = "".join(
+                f'<div style="padding:10px 0;border-bottom:1px solid #F0F4F8;">'
+                f'<div style="font-size:13px;font-weight:600;color:#0A1628;">{cl["name"]}</div>'
+                f'<div style="font-size:11px;color:#1A56DB;margin-top:2px;font-weight:500;">{cl["focus"]}</div>'
+                f'<div style="font-size:11px;color:#667788;margin-top:3px;line-height:1.5;">{cl["why"]}</div>'
+                f'</div>'
+                for cl in clubs
+            )
+        else:
+            clubs_html = '<div style="font-size:13px;color:#889AAA;">No club data for this path.</div>'
+        st.markdown(
+            '<div style="background:white;border-radius:14px;padding:22px 24px;'
+            'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
+            '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
+            'text-transform:uppercase;margin-bottom:4px;">🏛️ Clubs to Join</div>'
+            '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
+            'Nova SBE clubs that directly strengthen your profile</div>'
+            + clubs_html + '</div>',
+            unsafe_allow_html=True
+        )
+
+    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+
+    # Row 2: Alumni + Employers
+    c_alumni, c_emp = st.columns(2, gap="large")
 
     with c_alumni:
         if alumni:
@@ -2082,7 +2112,7 @@ def _career_readiness(career_key):
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
             'text-transform:uppercase;margin-bottom:4px;">🎓 Nova SBE Alumni</div>'
             '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
-            'Reach out on LinkedIn for a coffee chat</div>'
+            'Reach out on LinkedIn — one coffee chat beats 10 cold applications</div>'
             + alumni_html + '</div>',
             unsafe_allow_html=True
         )

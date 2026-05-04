@@ -18,31 +18,114 @@ INDUSTRY_MAP = {
 
 COURSE_KEYWORDS = {
     "consulting": [
-        "strategy", "consulting", "negotiation", "project management",
-        "corporate", "analytics", "competitive", "management consulting",
-        "persuasion", "case", "modeling", "modelling",
+        "strategy consulting", "management consulting", "competitive strategy",
+        "corporate strategy", "persuasion and negotiation", "negotiation",
+        "advanced strategy", "project management", "corporate valuation",
+        "strategy", "analytics", "case",
     ],
     "investment_banking": [
-        "finance", "financial", "banking", "mergers", "acquisitions",
-        "valuation", "private equity", "investment", "derivatives",
-        "capital", "corporate finance", "fintech", "venture",
+        "corporate finance", "applied corporate finance", "financial management",
+        "advanced financial management", "banking", "mergers", "acquisitions",
+        "corporate valuation", "private equity", "derivatives",
+        "financial statement", "venture capital", "fintech ventures",
+        "fixed income", "credit risk", "asset management", "corporate financial risk",
     ],
     "tech": [
-        "programming", "data", "digital", "machine learning", "product",
-        "analytics", "ai", "blockchain", "technology", "algorithmic",
-        "network", "cybersecurity", "e-commerce",
+        "introduction to programming", "machine learning", "big data",
+        "data visualization", "digital strategy", "blockchain", "cybersecurity",
+        "ai ", "product management in technology", "e-commerce",
+        "network analytics", "technology strategy", "algorithmic",
+        "data", "digital", "programming",
     ],
     "entrepreneurship": [
-        "entrepreneurship", "venture", "innovation", "business model",
-        "startup", "fintech", "social entrepreneurship", "science-based",
+        "applied entrepreneurship", "applied social entrepreneurship",
+        "science-based entrepreneurship", "entrepreneurial strategy",
+        "entrepreneurship", "business model innovation", "venture simulation",
+        "fintech ventures", "innovation", "venture capital", "startup",
     ],
     "marketing": [
-        "marketing", "brand", "consumer", "social media", "digital marketing",
-        "crm", "advertising", "content", "shopper", "luxury",
+        "marketing management", "advanced marketing", "brand management",
+        "digital marketing", "social media marketing", "integrated marketing",
+        "international marketing", "marketing analytics", "consumer behavior",
+        "luxury and fashion", "shopper marketing", "customer relationship",
+        "marketing", "brand", "consumer", "advertising",
     ],
     "sustainability": [
-        "sustainability", "environment", "climate", "esg", "impact",
-        "energy", "circular", "regenerative", "sustainable",
+        "fundamentals on environment", "energy and climate", "circular economy",
+        "regenerative business", "finance and the transition to net zero",
+        "sustainability evaluation", "sustainable marketing", "sustainable operations",
+        "impact investments", "sustainability", "climate", "environment",
+        "sustainable", "circular", "net zero", "esg",
+    ],
+}
+
+# Clubs at Nova SBE recommended per career path
+CLUBS_BY_CAREER = {
+    "consulting": [
+        {"name": "Nova Case Team",
+         "focus": "Case competitions & MBB prep",
+         "why": "Directly listed by McKinsey, BCG, Bain as a top signal on student CVs. Provides real case training and competition experience."},
+        {"name": "Nova SBE Social Consulting",
+         "focus": "Real consulting projects for NGOs",
+         "why": "Hands-on client projects, deliverables, and presentations — the same skills consulting firms test in interviews."},
+        {"name": "Nova Entrepreneurs Club",
+         "focus": "Strategy, pitching, business cases",
+         "why": "Strong overlap with consulting skills — strategy thinking, structured problem-solving, and client communication."},
+    ],
+    "investment_banking": [
+        {"name": "Nova Finance Club",
+         "focus": "IB, equity research, valuation",
+         "why": "The main pipeline to investment banking internships at Nova — most IB alumni at Goldman, JPMorgan and Rothschild came through this club."},
+        {"name": "Nova Investment Group",
+         "focus": "Portfolio management & stock pitches",
+         "why": "Shows hands-on financial modelling and investment analysis — exactly what IB firms test in applications."},
+        {"name": "Nova Fintech",
+         "focus": "Digital finance & fintech ventures",
+         "why": "Relevant for roles at digital banks, fintech arms of banks, and PE firms focused on tech-enabled financial services."},
+    ],
+    "tech": [
+        {"name": "Nova Data Science Club",
+         "focus": "Python, ML, data projects, hackathons",
+         "why": "Practical technical portfolio — the fastest way to show coding and analytical skills to tech employers."},
+        {"name": "Nova Fintech",
+         "focus": "Tech in financial services & product",
+         "why": "Bridges business and technology — relevant for product management and tech strategy roles."},
+        {"name": "Nova Entrepreneurs Club",
+         "focus": "Startup creation & tech products",
+         "why": "Product thinking, MVP development, and startup mentality — valued at tech companies and scale-ups."},
+    ],
+    "entrepreneurship": [
+        {"name": "Nova Entrepreneurs Club",
+         "focus": "Startup creation, pitching, mentoring",
+         "why": "The core entrepreneurship community at Nova — access to mentors, investors, and competitions."},
+        {"name": "Nova Fintech",
+         "focus": "Fintech ventures & digital products",
+         "why": "Fintech is one of the most active startup sectors — builds relevant network and product experience."},
+        {"name": "Nova SBE Social Consulting",
+         "focus": "Social enterprise & impact projects",
+         "why": "Experience managing real projects end-to-end as a student — directly signals execution ability."},
+    ],
+    "marketing": [
+        {"name": "Nova Marketing Club",
+         "focus": "Brand strategy, campaigns, FMCG",
+         "why": "Top marketing community at Nova — direct connections to P&G, L'Oréal, Unilever, and leading agencies."},
+        {"name": "Nova Entrepreneurs Club",
+         "focus": "Growth marketing & brand building",
+         "why": "Growth marketing for startups is a fast-growing career track — shows initiative and creative thinking."},
+        {"name": "Nova Data Science Club",
+         "focus": "Marketing analytics & data",
+         "why": "Data-driven marketing is the fastest-growing segment — analytics skills set you apart from classic marketers."},
+    ],
+    "sustainability": [
+        {"name": "Nova Sustainability Club",
+         "focus": "ESG, climate, circular economy",
+         "why": "The main sustainability network at Nova — connects to NGOs, ESG consultancies, and impact investment funds."},
+        {"name": "Nova SBE Social Consulting",
+         "focus": "Social impact consulting projects",
+         "why": "Real client projects with social impact organizations — valued experience for ESG and impact roles."},
+        {"name": "Nova Entrepreneurs Club",
+         "focus": "Social entrepreneurship & ventures",
+         "why": "Many sustainability careers involve starting or scaling impact ventures — this club bridges both worlds."},
     ],
 }
 
@@ -134,6 +217,28 @@ def _load_csv(path):
     return rows
 
 
+def _load_courses_csv():
+    """Load courses CSV — skips the title row so real column headers are used."""
+    import io
+    rows = []
+    try:
+        for enc in ("utf-8-sig", "utf-8", "latin-1"):
+            try:
+                with open(COURSES_CSV, encoding=enc) as f:
+                    lines = f.readlines()
+                break
+            except UnicodeDecodeError:
+                continue
+        # The first line is a title row; the second is the real header
+        content = "".join(lines[1:])
+        reader  = csv.DictReader(io.StringIO(content), delimiter=";")
+        for row in reader:
+            rows.append({k.strip(): (v or "").strip() for k, v in row.items() if k and k.strip()})
+    except Exception:
+        pass
+    return rows
+
+
 def _check_criteria(cv_text, career_key=""):
     text        = cv_text.lower()
     first_lines = text[:800]
@@ -158,15 +263,30 @@ def _check_criteria(cv_text, career_key=""):
 
 def _filter_courses(career_key):
     keywords = COURSE_KEYWORDS.get(career_key, [])
-    rows     = _load_csv(COURSES_CSV)
+    rows     = _load_courses_csv()
     scored   = []
     for r in rows:
         name  = r.get("Course Name", "").lower()
+        if not name:
+            continue
         score = sum(1 for kw in keywords if kw in name)
         if score > 0:
             scored.append((score, r))
     scored.sort(key=lambda x: -x[0])
-    return [r for _, r in scored[:5]]
+    # Deduplicate by course name (same course in multiple periods)
+    seen, result = set(), []
+    for _, r in scored:
+        n = r.get("Course Name", "")
+        if n not in seen:
+            seen.add(n)
+            result.append(r)
+        if len(result) >= 6:
+            break
+    return result
+
+
+def _filter_clubs(career_key):
+    return CLUBS_BY_CAREER.get(career_key, [])
 
 
 def _filter_alumni(career_key):
@@ -286,6 +406,7 @@ def analyze_career_readiness(cv_text, career_key, cv_result):
         "strengths":    _build_strengths(cv_result, criteria_met, career_key),
         "gaps":         _build_gaps(cv_result, criteria_met, career_key),
         "courses":      _filter_courses(career_key),
+        "clubs":        _filter_clubs(career_key),
         "alumni":       _filter_alumni(career_key),
         "employers":    _filter_employers(career_key),
         "criteria_met": criteria_met,
