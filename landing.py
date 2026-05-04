@@ -80,16 +80,16 @@ div[data-testid="stButton"] > button {
     display: inline-flex; align-items: center; gap: 7px;
     background: rgba(26,86,219,0.18); border: 1px solid rgba(26,86,219,0.3);
     border-radius: 20px; padding: 5px 14px; margin-bottom: 28px;
-    font-size: 11px; font-weight: 700; color: #7BB8F0;
+    font-size: 11px; font-weight: 700; color: #7BB8F0 !important;
     letter-spacing: 1px; text-transform: uppercase;
 }
 .lp-h1 {
-    font-size: 54px; font-weight: 800; color: white;
+    font-size: 54px; font-weight: 800; color: white !important;
     line-height: 1.1; letter-spacing: -2px; margin-bottom: 20px;
 }
-.lp-accent { color: #4B9FFF; }
+.lp-accent { color: #4B9FFF !important; }
 .lp-sub {
-    font-size: 17px; color: #6A98C0; line-height: 1.7;
+    font-size: 17px; color: #8BBDE0 !important; line-height: 1.7;
     max-width: 500px; margin: 0 auto 40px;
 }
 .lp-hero-cta {
@@ -102,7 +102,7 @@ div[data-testid="stButton"] > button {
     border: none; cursor: pointer;
 }
 .lp-hero-cta:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(26,86,219,0.5); color: white !important; }
-.lp-hero-note { font-size: 12px; color: #3A6888; margin-top: 14px; }
+.lp-hero-note { font-size: 12px; color: #8AAABF !important; margin-top: 14px; }
 .lp-stats {
     display: flex; justify-content: center; gap: 0;
     border-top: 1px solid rgba(255,255,255,0.07);
@@ -110,7 +110,7 @@ div[data-testid="stButton"] > button {
 }
 .lp-stat { text-align: center; padding: 0 44px; border-right: 1px solid rgba(255,255,255,0.07); }
 .lp-stat:last-child { border-right: none; }
-.lp-stat-n { font-size: 38px; font-weight: 800; color: white; letter-spacing: -1.5px; }
+.lp-stat-n { font-size: 38px; font-weight: 800; color: white !important; letter-spacing: -1.5px; }
 .lp-stat-l { font-size: 11px; color: #4A7898; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
 
 /* ── SECTIONS ── */
@@ -227,8 +227,8 @@ div[data-testid="stButton"] > button {
 
 /* ── QUOTE ── */
 .lp-quote { background: linear-gradient(135deg, #06101F, #0D2952); padding: 72px 48px; text-align: center; }
-.lp-quote-t { font-size: 26px; font-weight: 600; color: white; max-width: 620px; margin: 0 auto 18px; line-height: 1.55; }
-.lp-quote-t em { color: #4B9FFF; font-style: normal; }
+.lp-quote-t { font-size: 26px; font-weight: 600; color: white !important; max-width: 620px; margin: 0 auto 18px; line-height: 1.55; }
+.lp-quote-t em { color: #4B9FFF !important; font-style: normal; }
 .lp-quote-a { font-size: 13px; color: #3A6888; }
 
 /* ── FINAL CTA ── */
