@@ -2149,11 +2149,22 @@ elif st.session_state.step == "upload":
         border-color: #1A56DB !important; background: #F0F6FF !important;
     }
     div[data-testid="stFileUploader"] button {
-        background: #1A56DB !important; color: white !important;
+        background: #1A56DB !important;
         border-radius: 8px !important; border: none !important;
-        font-weight: 700 !important; font-size: 14px !important; padding: 8px 20px !important;
+        padding: 8px 20px !important; position: relative !important;
+        cursor: pointer !important;
     }
-    div[data-testid="stFileUploader"] button * { color: white !important; }
+    /* Make all internal text invisible — Streamlit renders duplicate spans */
+    div[data-testid="stFileUploader"] button,
+    div[data-testid="stFileUploader"] button * {
+        color: transparent !important; font-size: 0 !important;
+    }
+    /* Inject our own clean label */
+    div[data-testid="stFileUploader"] button::after {
+        content: "Browse files";
+        color: white !important; font-size: 14px !important;
+        font-weight: 700 !important; font-family: 'Inter', sans-serif !important;
+    }
     div[data-testid="stFileUploader"] small { color: #889AAA !important; }
     div[data-testid="stFileUploaderDropzone"] svg { stroke: #1A56DB !important; fill: none !important; }
     /* Buttons */
