@@ -2269,6 +2269,43 @@ elif st.session_state.step == "upload":
 
         uploaded = st.file_uploader("", type=["pdf"], label_visibility="collapsed")
 
+        # Fix doubled "Upload" text — JS removes the duplicate label Streamlit renders
+        import streamlit.components.v1 as _comp
+        _comp.html("""<script>
+        (function fix() {
+            try {
+                var doc = window.parent.document;
+                var dz = doc.querySelector('[data-testid="stFileUploaderDropzone"]');
+                if (!dz) { setTimeout(fix, 300); return; }
+                var btn = dz.querySelector('button');
+                if (!btn) { setTimeout(fix, 300); return; }
+                dz.querySelectorAll('*').forEach(function(el) {
+                    if (el === btn || btn.contains(el) || el.tagName === 'SMALL' || el.tagName === 'SVG' || el.tagName === 'svg') return;
+                    var t = el.textContent.trim().toLowerCase();
+                    if (el.children.length === 0 && (t === 'upload' || t === 'browse files' || t === 'drag and drop file here')) {
+                        el.style.display = 'none';
+                    }
+                });
+            } catch(e) {}
+        })();
+        setTimeout(function fix() {
+            try {
+                var doc = window.parent.document;
+                var dz = doc.querySelector('[data-testid="stFileUploaderDropzone"]');
+                if (!dz) { setTimeout(fix, 300); return; }
+                var btn = dz.querySelector('button');
+                if (!btn) return;
+                dz.querySelectorAll('*').forEach(function(el) {
+                    if (el === btn || btn.contains(el) || el.tagName === 'SMALL') return;
+                    var t = el.textContent.trim().toLowerCase();
+                    if (el.children.length === 0 && (t === 'upload' || t === 'browse files')) {
+                        el.style.display = 'none';
+                    }
+                });
+            } catch(e) {}
+        }, 800);
+        </script>""", height=0)
+
         # Status badge
         if uploaded:
             st.markdown(f"""
