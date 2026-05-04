@@ -2093,6 +2093,8 @@ elif st.session_state.step == "upload":
 
     st.markdown("""
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    * { font-family: 'Inter', sans-serif !important; }
     /* Full white page */
     .stApp, .stApp > div, section.main, .block-container {
         background: #F5F7FA !important;
@@ -2135,12 +2137,9 @@ elif st.session_state.step == "upload":
     li[role="option"]:hover {
         background: #EFF6FF !important;
     }
-    /* White file uploader — target every layer */
+    /* File uploader container */
     div[data-testid="stFileUploader"],
     div[data-testid="stFileUploader"] > div,
-    div[data-testid="stFileUploader"] > div > div,
-    div[data-testid="stFileUploader"] section,
-    div[data-testid="stFileUploaderDropzoneInput"],
     div[data-testid="stFileUploaderDropzone"] {
         background: white !important;
         background-color: white !important;
@@ -2148,26 +2147,31 @@ elif st.session_state.step == "upload":
     div[data-testid="stFileUploaderDropzone"] {
         border: 2px dashed #BFDBFE !important;
         border-radius: 14px !important;
-        padding: 20px !important;
+        padding: 24px 20px !important;
     }
     div[data-testid="stFileUploaderDropzone"]:hover {
         border-color: #1A56DB !important;
         background: #F0F6FF !important;
     }
-    div[data-testid="stFileUploader"] span,
+    /* Text inside uploader — NOT button */
     div[data-testid="stFileUploader"] p,
-    div[data-testid="stFileUploader"] small,
-    div[data-testid="stFileUploader"] div {
-        color: #334455 !important;
-    }
     div[data-testid="stFileUploader"] small { color: #889AAA !important; }
+    /* Upload button — white text, blue bg */
     div[data-testid="stFileUploader"] button {
         background: #1A56DB !important;
         color: white !important;
         border-radius: 8px !important;
         border: none !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
+        font-size: 14px !important;
+        padding: 8px 20px !important;
+        font-family: 'Inter', sans-serif !important;
     }
+    div[data-testid="stFileUploader"] button span,
+    div[data-testid="stFileUploader"] button p,
+    div[data-testid="stFileUploader"] button div { color: white !important; }
+    /* Hide native duplicate input label text */
+    div[data-testid="stFileUploaderDropzoneInput"] { display: none !important; }
     /* Upload icon color */
     div[data-testid="stFileUploaderDropzone"] svg { stroke: #1A56DB !important; fill: none !important; }
     /* Buttons */
