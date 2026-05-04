@@ -2137,43 +2137,25 @@ elif st.session_state.step == "upload":
     li[role="option"]:hover {
         background: #EFF6FF !important;
     }
-    /* File uploader — nuclear fix for doubled text */
+    /* File uploader */
     div[data-testid="stFileUploader"],
     div[data-testid="stFileUploader"] > div,
-    div[data-testid="stFileUploaderDropzone"] {
-        background: white !important;
-    }
+    div[data-testid="stFileUploaderDropzone"] { background: white !important; }
     div[data-testid="stFileUploaderDropzone"] {
         border: 2px dashed #BFDBFE !important;
-        border-radius: 14px !important;
-        padding: 24px 20px !important;
+        border-radius: 14px !important; padding: 24px 20px !important;
     }
     div[data-testid="stFileUploaderDropzone"]:hover {
         border-color: #1A56DB !important; background: #F0F6FF !important;
     }
-    /* Make ALL text in dropzone invisible by default */
-    div[data-testid="stFileUploaderDropzone"] span,
-    div[data-testid="stFileUploaderDropzone"] p,
-    div[data-testid="stFileUploaderDropzone"] div { font-size: 0 !important; color: transparent !important; }
-    /* Restore button */
-    div[data-testid="stFileUploaderDropzone"] button {
+    div[data-testid="stFileUploader"] button {
         background: #1A56DB !important; color: white !important;
         border-radius: 8px !important; border: none !important;
-        font-weight: 700 !important; font-size: 14px !important;
-        padding: 8px 20px !important;
+        font-weight: 700 !important; font-size: 14px !important; padding: 8px 20px !important;
     }
-    div[data-testid="stFileUploaderDropzone"] button span,
-    div[data-testid="stFileUploaderDropzone"] button div,
-    div[data-testid="stFileUploaderDropzone"] button p {
-        font-size: 14px !important; color: white !important;
-    }
-    /* Restore size limit text */
-    div[data-testid="stFileUploaderDropzone"] small,
-    div[data-testid="stFileUploaderDropzone"] small * {
-        font-size: 12px !important; color: #889AAA !important;
-    }
-    /* Keep SVG icon */
-    div[data-testid="stFileUploaderDropzone"] svg { stroke: #1A56DB !important; fill: none !important; font-size: initial !important; }
+    div[data-testid="stFileUploader"] button * { color: white !important; }
+    div[data-testid="stFileUploader"] small { color: #889AAA !important; }
+    div[data-testid="stFileUploaderDropzone"] svg { stroke: #1A56DB !important; fill: none !important; }
     /* Buttons */
     div[data-testid="stButton"] > button:not([kind="primary"]) {
         background: white !important;
@@ -2262,43 +2244,6 @@ elif st.session_state.step == "upload":
 
         uploaded = st.file_uploader("", type=["pdf"], label_visibility="collapsed")
 
-        # Fix doubled "Upload" text — JS removes the duplicate label Streamlit renders
-        import streamlit.components.v1 as _comp
-        _comp.html("""<script>
-        (function fix() {
-            try {
-                var doc = window.parent.document;
-                var dz = doc.querySelector('[data-testid="stFileUploaderDropzone"]');
-                if (!dz) { setTimeout(fix, 300); return; }
-                var btn = dz.querySelector('button');
-                if (!btn) { setTimeout(fix, 300); return; }
-                dz.querySelectorAll('*').forEach(function(el) {
-                    if (el === btn || btn.contains(el) || el.tagName === 'SMALL' || el.tagName === 'SVG' || el.tagName === 'svg') return;
-                    var t = el.textContent.trim().toLowerCase();
-                    if (el.children.length === 0 && (t === 'upload' || t === 'browse files' || t === 'drag and drop file here')) {
-                        el.style.display = 'none';
-                    }
-                });
-            } catch(e) {}
-        })();
-        setTimeout(function fix() {
-            try {
-                var doc = window.parent.document;
-                var dz = doc.querySelector('[data-testid="stFileUploaderDropzone"]');
-                if (!dz) { setTimeout(fix, 300); return; }
-                var btn = dz.querySelector('button');
-                if (!btn) return;
-                dz.querySelectorAll('*').forEach(function(el) {
-                    if (el === btn || btn.contains(el) || el.tagName === 'SMALL') return;
-                    var t = el.textContent.trim().toLowerCase();
-                    if (el.children.length === 0 && (t === 'upload' || t === 'browse files')) {
-                        el.style.display = 'none';
-                    }
-                });
-            } catch(e) {}
-        }, 800);
-        </script>""", height=0)
-
         # Status badge
         if uploaded:
             st.markdown(f"""
@@ -2311,6 +2256,35 @@ elif st.session_state.step == "upload":
                 </div>
             </div>
             """, unsafe_allow_html=True)
+
+        # JS: remove the duplicate "Upload" text Streamlit renders next to the button
+        import streamlit.components.v1 as _comp
+        _comp.html("""<script>
+        function fixUploader() {
+            try {
+                var doc = window.parent.document;
+                var dz = doc.querySelector('[data-testid="stFileUploaderDropzone"]');
+                if (!dz) { setTimeout(fixUploader, 400); return; }
+                var btn = dz.querySelector('button');
+                if (!btn) { setTimeout(fixUploader, 400); return; }
+                var all = dz.querySelectorAll('*');
+                for (var i = 0; i < all.length; i++) {
+                    var el = all[i];
+                    if (el === btn || btn.contains(el)) continue;
+                    if (el.tagName === 'SMALL' || el.tagName === 'SVG' || el.tagName === 'INPUT') continue;
+                    if (el.children.length === 0) {
+                        var t = el.textContent.trim().toLowerCase();
+                        if (t === 'upload' || t === 'browse files' || t === 'drag and drop file here' || t === 'limit') {
+                            el.style.display = 'none';
+                        }
+                    }
+                }
+            } catch(e) {}
+        }
+        fixUploader();
+        setTimeout(fixUploader, 600);
+        setTimeout(fixUploader, 1500);
+        </script>""", height=0)
 
         # ── Buttons always at the same position ─────────────────────────────
         st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
