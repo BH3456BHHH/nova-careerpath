@@ -535,11 +535,18 @@ def landing_page():
             try {
                 var doc = window.parent.document;
 
-                // ── CTA navigation — intercept all upload buttons ──
-                doc.querySelectorAll('a[href*="go=cv"], .lp-hero-cta, .lp-nav-cta, .lp-cta-btn').forEach(function(btn) {
-                    btn.addEventListener('click', function(e) {
+                // ── CTA navigation — find hidden native button and click it ──
+                var navBtn = null;
+                var allBtns = doc.querySelectorAll('button');
+                for (var i = 0; i < allBtns.length; i++) {
+                    if (allBtns[i].textContent.trim() === '▶') {
+                        navBtn = allBtns[i]; break;
+                    }
+                }
+                doc.querySelectorAll('.lp-hero-cta, .lp-nav-cta, .lp-cta-btn').forEach(function(cta) {
+                    cta.addEventListener('click', function(e) {
                         e.preventDefault();
-                        window.parent.location.href = window.parent.location.pathname + '?go=cv';
+                        if (navBtn) navBtn.click();
                     });
                 });
 

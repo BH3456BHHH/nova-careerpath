@@ -283,7 +283,7 @@ if st.query_params.get("go") == "cv":
 # SESSION STATE
 # =============================================================================
 for k, v in {
-    "step":       "upload",
+    "step":       "landing",
     "cv_result":  None,
     "career_key": "consulting",
     "cv_tab":     "overview",
@@ -2072,6 +2072,16 @@ def _results():
 # LANDING
 # =============================================================================
 if st.session_state.step == "landing":
+    # Invisible native button — JS will click this when user clicks any CTA
+    st.markdown("""<style>
+    div[data-testid="stButton"]:first-of-type button {
+        position:fixed!important;left:-9999px!important;top:-9999px!important;
+        width:1px!important;height:1px!important;opacity:0!important;
+    }
+    </style>""", unsafe_allow_html=True)
+    if st.button("▶", key="_nav_trigger"):
+        st.session_state.step = "upload"
+        st.rerun()
     st.markdown(LANDING_CSS, unsafe_allow_html=True)
     landing_page()
 
