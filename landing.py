@@ -234,8 +234,8 @@ div[data-testid="stButton"] > button {
 /* ── FINAL CTA ── */
 .lp-cta-sec { background: white; padding: 80px 48px; text-align: center; }
 .lp-cta-box { background: linear-gradient(145deg, #06101F, #0D2952); border-radius: 20px; padding: 56px 48px; max-width: 640px; margin: 0 auto; }
-.lp-cta-h2 { font-size: 32px; font-weight: 800; color: white; margin-bottom: 12px; letter-spacing: -0.8px; }
-.lp-cta-p { font-size: 15px; color: #6A98C0; line-height: 1.7; margin-bottom: 32px; }
+.lp-cta-h2 { font-size: 32px; font-weight: 800; color: white !important; margin-bottom: 12px; letter-spacing: -0.8px; }
+.lp-cta-p { font-size: 15px; color: #C0D8EE !important; line-height: 1.7; margin-bottom: 32px; }
 .lp-cta-btn {
     display: inline-block; background: #1A56DB !important; color: white !important;
     font-size: 15px; font-weight: 700; text-decoration: none !important;
