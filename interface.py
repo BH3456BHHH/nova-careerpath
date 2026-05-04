@@ -348,6 +348,44 @@ def _sidebar(result):
 
     st.sidebar.markdown('<hr style="border-color:#1E3A5F;margin:12px 0;">', unsafe_allow_html=True)
 
+    # ── Career Readiness sidebar ───────────────────────────────────────────────
+    if st.session_state.main_tab == "career":
+        cdata = st.session_state.get("career_data")
+        if cdata:
+            score = cdata["score"]
+            crit  = cdata["criteria_met"]
+            sc    = "#22C55E" if score >= 72 else "#F59E0B" if score >= 50 else "#EF4444"
+            st.sidebar.markdown(
+                f'<div style="padding:4px 0 10px;">'
+                f'<div style="font-size:9px;font-weight:700;color:#2A5070;letter-spacing:1.5px;'
+                f'text-transform:uppercase;margin-bottom:8px;">Readiness Score</div>'
+                f'<div style="font-size:42px;font-weight:800;color:{sc};line-height:1;">{score}</div>'
+                f'<div style="font-size:10px;color:#3A6888;margin-top:2px;">out of 100</div></div>',
+                unsafe_allow_html=True
+            )
+            CRIT_LABELS = [
+                ("internship",     "Internship"),
+                ("leadership",     "Leadership"),
+                ("international",  "International"),
+                ("case_prep",      "Case / Competition"),
+                ("extracurricular","Extracurricular"),
+                ("gpa",            "GPA 16+"),
+            ]
+            rows = "".join(
+                f'<div style="display:flex;justify-content:space-between;align-items:center;'
+                f'padding:6px 0;border-bottom:1px solid #1A3050;">'
+                f'<span style="font-size:12px;color:#8AB0CC;">{lbl}</span>'
+                f'<span style="font-size:13px;">{"✅" if crit.get(k) else "❌"}</span></div>'
+                for k, lbl in CRIT_LABELS
+            )
+            st.sidebar.markdown(
+                '<div style="font-size:9px;font-weight:700;color:#2A5070;letter-spacing:1.5px;'
+                'text-transform:uppercase;margin-bottom:8px;">Employer Criteria</div>'
+                + rows,
+                unsafe_allow_html=True
+            )
+            st.sidebar.markdown('<hr style="border-color:#1E3A5F;margin:14px 0;">', unsafe_allow_html=True)
+
     # ── CV Check sub-navigation ────────────────────────────────────────────────
     if st.session_state.main_tab == "cv" and result:
         imp  = result.get("impact",  {})
@@ -1942,80 +1980,141 @@ def _career_readiness(career_key):
 
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-    # ── Expandable sections ───────────────────────────────────────────────────
-    with st.expander("✅  CV Strengths — what's already working", expanded=False):
-        st.markdown("These are the strongest signals on your current CV based on what employers in this field look for.")
-        for item in strengths:
-            st.markdown(f"- {item}")
+    # ── Strengths + Gaps (always visible, side by side) ──────────────────────
+    c_str, c_gap = st.columns(2, gap="large")
 
-    with st.expander("⚠️  Gaps & Improvements — what to fix next", expanded=False):
-        st.markdown("These are the most important gaps compared to what top employers in this field require. Fix the top 1–2 first.")
-        for item in gaps:
-            st.markdown(f"- {item}")
-
-    with st.expander("📚  Recommended Nova SBE Courses", expanded=False):
-        st.markdown("These courses from the Nova SBE curriculum are most relevant for your target career path. Consider adding them to your schedule.")
-        if courses:
-            for c in courses:
-                name   = c.get("Course Name", "")
-                period = c.get("Period", "")
-                ctype  = c.get("Type", "")
-                st.markdown(f"**{name}** &nbsp;·&nbsp; {period} &nbsp;·&nbsp; {ctype}")
-        else:
-            st.markdown("No matching courses found for this career path.")
-
-    with st.expander("🎓  Nova SBE Alumni — reach out on LinkedIn", expanded=False):
-        st.markdown(
-            "**How to use this list:** Search for each person on LinkedIn, send a short connection request "
-            "mentioning you're also a Nova SBE student, and ask for a 20-minute virtual coffee chat. "
-            "Most alumni are happy to help — one conversation can open doors that applications alone cannot."
+    with c_str:
+        items_html = "".join(
+            f'<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;'
+            f'border-bottom:1px solid #F0F4F8;">'
+            f'<span style="color:#16A34A;font-size:15px;flex-shrink:0;margin-top:1px;">✓</span>'
+            f'<span style="font-size:13px;color:#334455;line-height:1.5;">{s}</span></div>'
+            for s in strengths
         )
-        st.markdown("---")
-        if alumni:
-            for a in alumni:
-                name    = a.get("Full Name", "").strip()
-                role    = a.get("Job Title", "").strip()
-                company = a.get("Company", "").strip()
-                prog    = a.get("Master's Program Name", "").strip()
-                clubs   = a.get("Student Clubs", "").strip()
-                linkedin= a.get("LinkedIn Profile URL", "").strip()
-                location= a.get("Location ", "").strip()
+        st.markdown(
+            '<div style="background:white;border-radius:14px;padding:22px 24px;'
+            'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
+            '<div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:1.2px;'
+            'text-transform:uppercase;margin-bottom:14px;">✅ Your Strengths</div>'
+            + items_html + '</div>',
+            unsafe_allow_html=True
+        )
 
-                detail = " · ".join(filter(None, [prog, clubs, location]))
-                link_html = (f' &nbsp;<a href="{linkedin}" target="_blank" '
-                             f'style="font-size:11px;color:#1A56DB;font-weight:600;">LinkedIn →</a>'
-                             if linkedin else "")
-                st.markdown(
-                    f'<div style="padding:10px 0;border-bottom:1px solid #F5F7FA;">'
-                    f'<div style="font-size:14px;font-weight:700;color:#0A1628;">{name}{link_html}</div>'
-                    f'<div style="font-size:13px;color:#445566;margin-top:2px;">'
-                    f'{role}{" at " + company if company else ""}</div>'
-                    f'<div style="font-size:11px;color:#889AAA;margin-top:2px;">{detail}</div>'
-                    f'</div>',
-                    unsafe_allow_html=True
+    with c_gap:
+        items_html = "".join(
+            f'<div style="display:flex;gap:10px;align-items:flex-start;padding:8px 0;'
+            f'border-bottom:1px solid #F0F4F8;">'
+            f'<span style="color:#EF4444;font-size:15px;flex-shrink:0;margin-top:1px;">→</span>'
+            f'<span style="font-size:13px;color:#334455;line-height:1.5;">{g}</span></div>'
+            for g in gaps
+        )
+        st.markdown(
+            '<div style="background:white;border-radius:14px;padding:22px 24px;'
+            'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
+            '<div style="font-size:10px;font-weight:700;color:#EF4444;letter-spacing:1.2px;'
+            'text-transform:uppercase;margin-bottom:14px;">⚠️ Gaps to Close</div>'
+            + items_html + '</div>',
+            unsafe_allow_html=True
+        )
+
+    # ── Database section ──────────────────────────────────────────────────────
+    st.markdown("""
+    <div style="margin:28px 0 16px;">
+      <div style="font-size:10px;font-weight:700;color:#AAB8C8;letter-spacing:1.5px;
+                  text-transform:uppercase;margin-bottom:4px;">Nova SBE Resources</div>
+      <div style="font-size:20px;font-weight:700;color:#0A1628;">Your personalised path to this career</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    c_courses, c_alumni, c_emp = st.columns(3, gap="medium")
+
+    with c_courses:
+        if courses:
+            course_html = "".join(
+                f'<div style="padding:10px 0;border-bottom:1px solid #F0F4F8;">'
+                f'<div style="font-size:13px;font-weight:600;color:#0A1628;line-height:1.4;">'
+                f'{c.get("Course Name","")}</div>'
+                f'<div style="font-size:11px;color:#889AAA;margin-top:3px;">'
+                f'{c.get("Period","")}{"  ·  " + c.get("Type","") if c.get("Type") else ""}</div>'
+                f'</div>'
+                for c in courses
+            )
+        else:
+            course_html = '<div style="font-size:13px;color:#889AAA;">No matching courses found.</div>'
+        st.markdown(
+            '<div style="background:white;border-radius:14px;padding:22px 24px;'
+            'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
+            '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
+            'text-transform:uppercase;margin-bottom:4px;">📚 Nova SBE Courses</div>'
+            '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
+            'Most relevant for your target career</div>'
+            + course_html + '</div>',
+            unsafe_allow_html=True
+        )
+
+    with c_alumni:
+        if alumni:
+            alumni_html = ""
+            for a in alumni:
+                name     = a.get("Full Name", "").strip()
+                role     = a.get("Job Title", "").strip()
+                company  = a.get("Company", "").strip()
+                prog     = a.get("Master's Program Name", "").strip()
+                linkedin = a.get("LinkedIn Profile URL", "").strip()
+                link = (f'<a href="{linkedin}" target="_blank" '
+                        f'style="font-size:11px;color:#1A56DB;font-weight:600;text-decoration:none;">'
+                        f'LinkedIn →</a>' if linkedin else "")
+                alumni_html += (
+                    f'<div style="padding:10px 0;border-bottom:1px solid #F0F4F8;">'
+                    f'<div style="display:flex;justify-content:space-between;align-items:flex-start;">'
+                    f'<div style="font-size:13px;font-weight:600;color:#0A1628;">{name}</div>'
+                    f'{link}</div>'
+                    f'<div style="font-size:11px;color:#445566;margin-top:2px;">'
+                    f'{role}{" @ " + company if company else ""}</div>'
+                    f'<div style="font-size:10px;color:#889AAA;margin-top:1px;">{prog}</div>'
+                    f'</div>'
                 )
         else:
-            st.markdown("No alumni data available for this career path yet.")
+            alumni_html = '<div style="font-size:13px;color:#889AAA;">No alumni data yet.</div>'
+        st.markdown(
+            '<div style="background:white;border-radius:14px;padding:22px 24px;'
+            'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
+            '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
+            'text-transform:uppercase;margin-bottom:4px;">🎓 Nova SBE Alumni</div>'
+            '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
+            'Reach out on LinkedIn for a coffee chat</div>'
+            + alumni_html + '</div>',
+            unsafe_allow_html=True
+        )
 
-    with st.expander("🏢  Target Employers & Application Tips", expanded=False):
-        st.markdown("These are the main employers in your target field that recruit Nova SBE students. Check when to apply and what they look for.")
+    with c_emp:
         if employers:
+            emp_html = ""
             for e in employers:
                 company  = e.get("Company", "")
                 criteria = e.get("Key Evaluation Criteria", "")
                 timing   = e.get("Application Timing", "")
                 reqs     = e.get("Typical Requirements", "")
-                st.markdown(
-                    f'<div style="padding:12px 0;border-bottom:1px solid #F5F7FA;">'
-                    f'<div style="font-size:14px;font-weight:700;color:#0A1628;">{company}</div>'
-                    f'<div style="font-size:12px;color:#445566;margin-top:3px;">🔍 {criteria}</div>'
-                    f'<div style="font-size:12px;color:#445566;margin-top:2px;">📋 {reqs}</div>'
-                    f'<div style="font-size:11px;color:#1A56DB;margin-top:3px;font-weight:600;">'
-                    f'📅 Apply: {timing}</div></div>',
-                    unsafe_allow_html=True
+                emp_html += (
+                    f'<div style="padding:10px 0;border-bottom:1px solid #F0F4F8;">'
+                    f'<div style="font-size:13px;font-weight:600;color:#0A1628;">{company}</div>'
+                    f'<div style="font-size:11px;color:#667788;margin-top:2px;">{criteria}</div>'
+                    f'<div style="font-size:11px;color:#889AAA;margin-top:1px;">{reqs}</div>'
+                    f'<div style="font-size:11px;color:#1A56DB;font-weight:600;margin-top:3px;">'
+                    f'📅 Apply: {timing}</div></div>'
                 )
         else:
-            st.markdown("No employer data available for this career path yet.")
+            emp_html = '<div style="font-size:13px;color:#889AAA;">No employer data yet.</div>'
+        st.markdown(
+            '<div style="background:white;border-radius:14px;padding:22px 24px;'
+            'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
+            '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
+            'text-transform:uppercase;margin-bottom:4px;">🏢 Target Employers</div>'
+            '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
+            'Who recruits Nova SBE students + when to apply</div>'
+            + emp_html + '</div>',
+            unsafe_allow_html=True
+        )
 
 
 # =============================================================================
@@ -2024,6 +2123,17 @@ def _career_readiness(career_key):
 def _results():
     result     = st.session_state.cv_result
     career_key = st.session_state.career_key
+
+    # Cache career readiness data in session state (recompute if career path changed)
+    if result and result.get("raw_text"):
+        if (st.session_state.get("career_data_key") != career_key
+                or "career_data" not in st.session_state):
+            st.session_state["career_data"] = analyze_career_readiness(
+                cv_text=result["raw_text"], career_key=career_key, cv_result=result
+            )
+            st.session_state["career_data_key"] = career_key
+    else:
+        st.session_state["career_data"] = None
 
     import streamlit.components.v1 as components
     components.html("""
