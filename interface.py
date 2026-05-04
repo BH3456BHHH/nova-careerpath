@@ -10,7 +10,7 @@ st.set_page_config(
     page_title="Nova · CV Intelligence",
     page_icon="🎓",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",
 )
 
 # =============================================================================
@@ -2198,6 +2198,12 @@ elif st.session_state.step == "upload":
         height: 52px !important;
         margin: 0 !important;
     }
+    /* Hide sidebar and toggle completely on upload page */
+    section[data-testid="stSidebar"] { display: none !important; }
+    button[data-testid="collapsedControl"],
+    div[data-testid="collapsedControl"] { display: none !important; }
+    /* Hide the instruction text inside the dropzone — keeps only the button */
+    div[data-testid="stFileUploaderDropzoneInstructions"] > div:first-child { display: none !important; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -2238,7 +2244,7 @@ elif st.session_state.step == "upload":
         st.markdown("""
         <div style="height:1px;background:#E8EEF4;margin:22px 0 18px 0;"></div>
         <p style="font-size:13px;font-weight:600;color:#6A8AA8;margin:0 0 10px 0;">
-            Upload your CV (PDF)
+            Your CV (PDF only)
         </p>
         """, unsafe_allow_html=True)
 
@@ -2256,35 +2262,6 @@ elif st.session_state.step == "upload":
                 </div>
             </div>
             """, unsafe_allow_html=True)
-
-        # JS: remove the duplicate "Upload" text Streamlit renders next to the button
-        import streamlit.components.v1 as _comp
-        _comp.html("""<script>
-        function fixUploader() {
-            try {
-                var doc = window.parent.document;
-                var dz = doc.querySelector('[data-testid="stFileUploaderDropzone"]');
-                if (!dz) { setTimeout(fixUploader, 400); return; }
-                var btn = dz.querySelector('button');
-                if (!btn) { setTimeout(fixUploader, 400); return; }
-                var all = dz.querySelectorAll('*');
-                for (var i = 0; i < all.length; i++) {
-                    var el = all[i];
-                    if (el === btn || btn.contains(el)) continue;
-                    if (el.tagName === 'SMALL' || el.tagName === 'SVG' || el.tagName === 'INPUT') continue;
-                    if (el.children.length === 0) {
-                        var t = el.textContent.trim().toLowerCase();
-                        if (t === 'upload' || t === 'browse files' || t === 'drag and drop file here' || t === 'limit') {
-                            el.style.display = 'none';
-                        }
-                    }
-                }
-            } catch(e) {}
-        }
-        fixUploader();
-        setTimeout(fixUploader, 600);
-        setTimeout(fixUploader, 1500);
-        </script>""", height=0)
 
         # ── Buttons always at the same position ─────────────────────────────
         st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
