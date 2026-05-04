@@ -9,7 +9,7 @@ COURSES_CSV  = _os.path.join(_DIR, "nova_courses&clubs_database_v3(MNG).csv")
 
 INDUSTRY_MAP = {
     "consulting":         "Consulting",
-    "investment_banking": "Finance",
+    "investment_banking": "Investment Banking",
     "tech":               "Tech",
     "entrepreneurship":   "Entrepreneurship",
     "marketing":          "Marketing",
@@ -55,7 +55,51 @@ EMPLOYER_CRITERIA = {
     "extracurricular":["club", "society", "association", "volunteer", "committee"],
 }
 
-# Nationalities that signal the student is studying abroad (i.e. at Nova SBE as a foreign national)
+# Keywords that signal field-specific experience for each career path
+CAREER_EXPERIENCE_KEYWORDS = {
+    "consulting": [
+        "consulting", "consultant", "mckinsey", "bcg", "bain", "deloitte",
+        "accenture", "strategy&", "roland berger", "oliver wyman", "kpmg",
+        "pwc", "ey ", "ernst & young", "advisory", "horvath", "ey-parthenon",
+        "management consulting", "strategy consulting", "strategy project",
+        "strategic recommendation", "case team",
+    ],
+    "investment_banking": [
+        "investment banking", "investment bank", "goldman sachs", "jpmorgan",
+        "jp morgan", "morgan stanley", "barclays", "ubs", "credit suisse",
+        "deutsche bank", "citi", "citigroup", "rothschild", "lazard",
+        "jefferies", "nomura", "hsbc", "bnp paribas", "societe generale",
+        "m&a", "mergers and acquisitions", "debt capital", "equity capital",
+        "ipo", "financial modelling", "financial modeling", "lbo",
+        "leveraged buyout", "dcf", "leveraged finance", "pitchbook",
+        "deal execution", "transaction", "capital markets",
+    ],
+    "tech": [
+        "google", "microsoft", "amazon", "meta", "apple", "netflix",
+        "software engineer", "software developer", "product manager",
+        "data scientist", "machine learning", "artificial intelligence",
+        "engineering", "developer", "programmer", "coding", "tech company",
+        "saas", "fintech platform", "e-commerce platform", "product owner",
+    ],
+    "entrepreneurship": [
+        "founder", "co-founder", "cofounder", "bootstrapped", "entrepreneur",
+        "startup", "raised funding", "seed round", "pitch", "mvp",
+        "product launch", "own business", "own company", "revenue in",
+    ],
+    "marketing": [
+        "marketing", "brand manager", "digital marketing", "social media manager",
+        "campaign manager", "advertising", "content strategy", "seo", "sem",
+        "crm manager", "brand strategy", "consumer insights", "market research",
+        "media planning", "marketing intern",
+    ],
+    "sustainability": [
+        "sustainability", "esg", "climate", "environmental", "renewable energy",
+        "green", "impact investing", "circular economy", "carbon", "net zero",
+        "social impact", "csr", "corporate responsibility", "sustainable",
+        "impact fund", "green finance",
+    ],
+}
+
 FOREIGN_NATIONALITIES = [
     "german", "austrian", "french", "british", "spanish", "italian",
     "dutch", "swiss", "belgian", "swedish", "danish", "norwegian",
@@ -90,11 +134,10 @@ def _load_csv(path):
     return rows
 
 
-def _check_criteria(cv_text):
+def _check_criteria(cv_text, career_key=""):
     text        = cv_text.lower()
-    first_lines = text[:800]   # nationality usually appears in header
+    first_lines = text[:800]
 
-    # International: foreign national studying at Nova SBE, OR explicit abroad experience
     is_foreign = any(nat in first_lines for nat in FOREIGN_NATIONALITIES)
     has_abroad = any(kw in text for kw in ABROAD_KEYWORDS)
 
@@ -105,6 +148,11 @@ def _check_criteria(cv_text):
             for p in patterns
         )
     met["international"] = is_foreign or has_abroad
+
+    # Career-specific experience: does the CV show field-relevant roles/employers?
+    exp_kws = CAREER_EXPERIENCE_KEYWORDS.get(career_key, [])
+    met["relevant_experience"] = any(kw in text for kw in exp_kws) if exp_kws else True
+
     return met
 
 
@@ -133,7 +181,7 @@ def _filter_employers(career_key):
     return [r for r in rows if industry.lower() in r.get("Category", "").lower()][:5]
 
 
-def _build_strengths(cv_result, criteria_met):
+def _build_strengths(cv_result, criteria_met, career_key):
     imp   = cv_result.get("impact", {})
     brev  = cv_result.get("brevity", {})
     strengths = []
@@ -142,6 +190,9 @@ def _build_strengths(cv_result, criteria_met):
     qi_lines  = imp.get("quantifying_impact", {}).get("quantified_lines", 0)
     ln_score  = brev.get("length", {}).get("score", 0)
 
+    if criteria_met.get("relevant_experience"):
+        industry = INDUSTRY_MAP.get(career_key, career_key)
+        strengths.append(f"Relevant {industry} experience detected — you have direct field exposure, which is the #1 screening criterion at top firms.")
     if av_score >= 8:
         strengths.append("Strong action verbs — your bullet points start with confident, impact-driven language that top employers notice immediately.")
     if qi_lines >= 3:
@@ -163,6 +214,14 @@ def _build_gaps(cv_result, criteria_met, career_key):
     imp  = cv_result.get("impact", {})
     kw   = cv_result.get("keywords", {})
     gaps = []
+    industry = INDUSTRY_MAP.get(career_key, career_key)
+
+    # Relevant experience is the most critical gap — show it first
+    if not criteria_met.get("relevant_experience"):
+        gaps.append(
+            f"No {industry}-specific experience detected — employers in this field screen heavily for prior field exposure. "
+            f"A CV without a relevant internship or project will rarely pass the first round, regardless of overall quality."
+        )
 
     qi_lines = imp.get("quantifying_impact", {}).get("quantified_lines", 0)
     if qi_lines < 2:
@@ -175,7 +234,7 @@ def _build_gaps(cv_result, criteria_met, career_key):
         gaps.append("No case competition or consulting club experience — this is heavily weighted by MBB and top-tier firms.")
     if not criteria_met.get("international"):
         gaps.append("International experience is preferred — an exchange semester or internship abroad strengthens your profile significantly.")
-    missing_kw = kw.get("missing", [])[:4]
+    missing_kw = kw.get("missing", [])[:3]
     if kw.get("ratio", 1) < 0.4 and missing_kw:
         gaps.append(f"Missing industry keywords — add these naturally: {', '.join(missing_kw)}.")
     return gaps[:5]
@@ -183,16 +242,30 @@ def _build_gaps(cv_result, criteria_met, career_key):
 
 def _readiness_score(cv_result, criteria_met):
     cv_pct = cv_result.get("overall_pct", 50)
+    # relevant_experience carries the most weight — no field exposure = major penalty
     weights = {
-        "internship": 25, "leadership": 20, "case_prep": 15,
-        "international": 15, "extracurricular": 15, "gpa": 10,
+        "relevant_experience": 35,
+        "internship":          20,
+        "leadership":          15,
+        "international":       10,
+        "extracurricular":      8,
+        "case_prep":            7,
+        "gpa":                  5,
     }
     criteria_score = sum(w for k, w in weights.items() if criteria_met.get(k))
-    return min(100, max(0, round(cv_pct * 0.5 + criteria_score * 0.5)))
+    return min(100, max(0, round(cv_pct * 0.35 + criteria_score * 0.65)))
 
 
 def _quick_win(cv_result, criteria_met, career_key):
+    industry = INDUSTRY_MAP.get(career_key, career_key)
     qi = cv_result.get("impact", {}).get("quantifying_impact", {}).get("quantified_lines", 0)
+
+    if not criteria_met.get("relevant_experience"):
+        return (
+            f"Secure a {industry}-specific internship or project as your top priority — "
+            f"without field-relevant experience, your application will face major screening barriers "
+            f"regardless of your CV quality or grades."
+        )
     if qi == 0:
         return "Add at least 2 numbers to your CV (team size, % result, event attendance) — the fastest single improvement you can make."
     if not criteria_met.get("internship"):
@@ -207,10 +280,10 @@ def _quick_win(cv_result, criteria_met, career_key):
 
 
 def analyze_career_readiness(cv_text, career_key, cv_result):
-    criteria_met = _check_criteria(cv_text)
+    criteria_met = _check_criteria(cv_text, career_key)
     return {
         "score":        _readiness_score(cv_result, criteria_met),
-        "strengths":    _build_strengths(cv_result, criteria_met),
+        "strengths":    _build_strengths(cv_result, criteria_met, career_key),
         "gaps":         _build_gaps(cv_result, criteria_met, career_key),
         "courses":      _filter_courses(career_key),
         "alumni":       _filter_alumni(career_key),
