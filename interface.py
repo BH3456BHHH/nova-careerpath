@@ -2170,8 +2170,15 @@ elif st.session_state.step == "upload":
     div[data-testid="stFileUploader"] button span,
     div[data-testid="stFileUploader"] button p,
     div[data-testid="stFileUploader"] button div { color: white !important; }
-    /* Hide native duplicate input label text */
+    /* Hide duplicate Upload text — element right after button and native input */
     div[data-testid="stFileUploaderDropzoneInput"] { display: none !important; }
+    div[data-testid="stFileUploaderDropzone"] button + div,
+    div[data-testid="stFileUploaderDropzone"] button + span,
+    div[data-testid="stFileUploaderDropzone"] button ~ div:not([data-testid]),
+    div[data-testid="stFileUploaderDropzone"] input[type="file"],
+    div[data-testid="stFileUploaderDropzone"] input[type="file"] + * { display: none !important; }
+    /* But keep the small limit text visible */
+    div[data-testid="stFileUploaderDropzone"] small { display: block !important; color: #889AAA !important; }
     /* Upload icon color */
     div[data-testid="stFileUploaderDropzone"] svg { stroke: #1A56DB !important; fill: none !important; }
     /* Buttons */
