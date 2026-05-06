@@ -1919,7 +1919,9 @@ def _career_readiness(career_key):
     courses      = data["courses"]
     clubs        = data.get("clubs", [])
     alumni       = data["alumni"]
+    alumni_ai    = data.get("alumni_ai", False)
     employers    = data["employers"]
+    employers_ai = data.get("employers_ai", False)
     quick_win    = data["quick_win"]
     criteria_met = data["criteria_met"]
     _gr = st.session_state.get("gemini_result") or {}
@@ -2135,7 +2137,10 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:4px;">🎓 Nova SBE Alumni</div>'
+            'text-transform:uppercase;margin-bottom:4px;">🎓 Nova SBE Alumni'
+            + (' &nbsp;<span style="background:#EFF6FF;color:#1A56DB;font-size:9px;font-weight:600;'
+               'padding:2px 8px;border-radius:20px;border:1px solid #BFDBFE;vertical-align:middle;">'
+               '✨ AI</span>' if alumni_ai else '') + '</div>'
             '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
             'Reach out on LinkedIn — one coffee chat beats 10 cold applications</div>'
             + alumni_html + '</div>',
@@ -2164,7 +2169,10 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:4px;">🏢 Target Employers</div>'
+            'text-transform:uppercase;margin-bottom:4px;">🏢 Target Employers'
+            + (' &nbsp;<span style="background:#EFF6FF;color:#1A56DB;font-size:9px;font-weight:600;'
+               'padding:2px 8px;border-radius:20px;border:1px solid #BFDBFE;vertical-align:middle;">'
+               '✨ AI</span>' if employers_ai else '') + '</div>'
             '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
             'Who recruits Nova SBE students + when to apply</div>'
             + emp_html + '</div>',

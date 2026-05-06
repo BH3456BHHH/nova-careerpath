@@ -291,8 +291,14 @@ def _filter_clubs(career_key):
 
 def _filter_alumni(career_key):
     industry = INDUSTRY_MAP.get(career_key, "")
-    rows     = _load_csv(ALUMNI_CSV)
-    return [r for r in rows if industry.lower() in r.get("Industry", "").lower()][:5]
+    # Investment Banking alumni are stored under "Finance" in the CSV
+    alt = "finance" if career_key == "investment_banking" else ""
+    rows = _load_csv(ALUMNI_CSV)
+    return [
+        r for r in rows
+        if industry.lower() in r.get("Industry", "").lower()
+        or (alt and alt in r.get("Industry", "").lower())
+    ][:5]
 
 
 def _filter_employers(career_key):
@@ -400,15 +406,36 @@ def _quick_win(cv_result, criteria_met, career_key):
 
 
 def analyze_career_readiness(cv_text, career_key, cv_result):
+    from gemini_ai import generate_alumni, generate_employers
+
     criteria_met = _check_criteria(cv_text, career_key)
+
+    alumni = _filter_alumni(career_key)
+    alumni_ai = False
+    if not alumni:
+        ai = generate_alumni(career_key)
+        if ai:
+            alumni = ai
+            alumni_ai = True
+
+    employers = _filter_employers(career_key)
+    employers_ai = False
+    if not employers:
+        ai = generate_employers(career_key)
+        if ai:
+            employers = ai
+            employers_ai = True
+
     return {
         "score":        _readiness_score(cv_result, criteria_met),
         "strengths":    _build_strengths(cv_result, criteria_met, career_key),
         "gaps":         _build_gaps(cv_result, criteria_met, career_key),
         "courses":      _filter_courses(career_key),
         "clubs":        _filter_clubs(career_key),
-        "alumni":       _filter_alumni(career_key),
-        "employers":    _filter_employers(career_key),
+        "alumni":       alumni,
+        "alumni_ai":    alumni_ai,
+        "employers":    employers,
+        "employers_ai": employers_ai,
         "criteria_met": criteria_met,
         "quick_win":    _quick_win(cv_result, criteria_met, career_key),
     }
