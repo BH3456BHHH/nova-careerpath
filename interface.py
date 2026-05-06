@@ -5,6 +5,7 @@ from data import CAREER_PATHS
 from cv_score import score_cv
 from landing import landing_page, LANDING_CSS
 from career_readiness_ai import analyze_career_readiness
+from gemini_ai import enhance_cv_feedback
 
 st.set_page_config(
     page_title="Nova · CV Intelligence",
@@ -449,6 +450,9 @@ def _overview(result):
     brev       = result.get("brevity", {})
     sty        = result.get("style",   {})
     highlights = result.get("highlights", [])
+    _gr = st.session_state.get("gemini_result") or {}
+    if _gr.get("highlights"):
+        highlights = _gr["highlights"]
     grade_color = "#22C55E" if grade in ("A+","A") else "#F59E0B" if grade=="B" else "#EF4444"
 
     def gs(d, k): return d.get(k, {}).get("score", 0)
@@ -1909,6 +1913,10 @@ def _career_readiness(career_key):
     employers    = data["employers"]
     quick_win    = data["quick_win"]
     criteria_met = data["criteria_met"]
+    _gr = st.session_state.get("gemini_result") or {}
+    if _gr.get("strengths"): strengths = _gr["strengths"]
+    if _gr.get("gaps"):      gaps      = _gr["gaps"]
+    if _gr.get("quick_win"): quick_win = _gr["quick_win"]
 
     score_color   = "#22C55E" if score >= 72 else "#F59E0B" if score >= 50 else "#EF4444"
     circumference = 2 * 3.14159 * 54
@@ -2429,6 +2437,11 @@ elif st.session_state.step == "upload":
                 if st.button("Analyse CV →", type="primary", use_container_width=True, key="upload_go"):
                     with st.spinner("Analysing your CV..."):
                         st.session_state.cv_result = score_cv(uploaded, career_key)
+                        st.session_state.gemini_result = enhance_cv_feedback(
+                            st.session_state.cv_result["raw_text"],
+                            career_key,
+                            st.session_state.cv_result,
+                        )
                     st.session_state.main_tab = "cv"
                     st.session_state.cv_tab   = "overview"
                     go_to("results"); st.rerun()
