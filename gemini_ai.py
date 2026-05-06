@@ -159,3 +159,97 @@ Return ONLY a JSON array — no markdown, no explanation:
     if result:
         print(f"[Gemini] Employer generation success ({len(result)} companies)!")
     return result if isinstance(result, list) else None
+
+
+# Career-specific scoring criteria shown to Gemini per path
+_READINESS_CRITERIA = {
+    "consulting": """
+- Consulting internship or strategy project experience: 30%
+- Case competition or consulting club membership: 20%
+- Leadership role (team lead, president, founder): 15%
+- GPA signal (16/20 or above): 15%
+- International experience: 10%
+- Extracurricular involvement: 10%""",
+
+    "investment_banking": """
+- Finance or IB internship experience: 35%
+- GPA (17/20 or above strongly preferred): 20%
+- Financial modelling or technical finance skills: 15%
+- Leadership role: 15%
+- International experience: 10%
+- Extracurricular involvement: 5%""",
+
+    "tech": """
+- Tech internship or hands-on technical project: 35%
+- Technical skills (coding, data, ML, product): 25%
+- Personal projects, GitHub portfolio, or hackathons: 15%
+- Leadership or product ownership experience: 15%
+- GPA: 5%
+- International experience: 5%""",
+
+    "entrepreneurship": """
+- Own venture, startup, or freelance project: 35%
+- Leadership and ownership of initiatives: 25%
+- Relevant internship or business experience: 20%
+- Extracurricular initiative or club leadership: 15%
+- GPA: 5%""",
+
+    "marketing": """
+- Marketing or brand internship experience: 35%
+- Creative projects, campaigns, or content work: 20%
+- Digital skills (SEO, social media, analytics): 15%
+- Leadership or event organisation: 15%
+- GPA: 10%
+- International experience: 5%""",
+
+    "sustainability": """
+- Sustainability, ESG, or impact-related experience: 35%
+- Values-aligned extracurricular or volunteer work: 20%
+- Academic knowledge (relevant courses, thesis): 15%
+- Leadership or project ownership: 15%
+- International or cross-cultural exposure: 10%
+- GPA: 5%""",
+}
+
+
+def assess_career_readiness(cv_text: str, career_key: str, cv_pct: int, criteria_met: dict) -> dict | None:
+    """
+    Ask Gemini to score career readiness with career-path-specific criteria weights.
+    Returns dict: {score: int, explanation: str} or None on failure.
+    """
+    career_label  = _CAREER_LABELS.get(career_key, career_key)
+    criteria_text = _READINESS_CRITERIA.get(career_key, "")
+
+    detected = [k for k, v in criteria_met.items() if v]
+    missing  = [k for k, v in criteria_met.items() if not v]
+
+    prompt = f"""You are a career advisor evaluating a Nova SBE student's readiness for {career_label}.
+
+Score their career readiness from 0 to 100 using these career-specific criteria weights:
+{criteria_text}
+
+Context:
+- CV quality score (structure, action verbs, brevity): {cv_pct}/100
+- Criteria detected in CV: {', '.join(detected) if detected else 'none'}
+- Criteria missing from CV: {', '.join(missing) if missing else 'none'}
+
+CV text:
+---
+{cv_text[:3000]}
+---
+
+Be realistic and honest. A score above 75 should only be given if the student has strong relevant experience.
+
+Return ONLY a JSON object — no markdown:
+{{
+  "score": 68,
+  "explanation": "One or two sentences explaining the score in the context of {career_label} specifically."
+}}"""
+
+    print(f"[Gemini] Assessing career readiness for {career_label}...")
+    result = _parse_json(_call(prompt), "{")
+    if result and isinstance(result.get("score"), (int, float)):
+        result["score"] = max(0, min(100, int(result["score"])))
+        print(f"[Gemini] Career readiness score: {result['score']}")
+        return result
+    return None

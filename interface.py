@@ -1918,12 +1918,14 @@ def _career_readiness(career_key):
     gaps         = data["gaps"]
     courses      = data["courses"]
     clubs        = data.get("clubs", [])
-    alumni       = data["alumni"]
-    alumni_ai    = data.get("alumni_ai", False)
-    employers    = data["employers"]
-    employers_ai = data.get("employers_ai", False)
-    quick_win    = data["quick_win"]
-    criteria_met = data["criteria_met"]
+    alumni            = data["alumni"]
+    alumni_ai         = data.get("alumni_ai", False)
+    employers         = data["employers"]
+    employers_ai      = data.get("employers_ai", False)
+    score_ai          = data.get("score_ai", False)
+    score_explanation = data.get("score_explanation", "")
+    quick_win         = data["quick_win"]
+    criteria_met      = data["criteria_met"]
     _gr = st.session_state.get("gemini_result") or {}
     if _gr.get("strengths"): strengths = _gr["strengths"]
     if _gr.get("gaps"):      gaps      = _gr["gaps"]
@@ -1952,7 +1954,10 @@ def _career_readiness(career_key):
             <text x="70" y="88" text-anchor="middle" dominant-baseline="middle"
               font-size="11" fill="#AAB8C8" font-family="Inter,sans-serif">out of 100</text>
           </svg>
-          <div style="font-size:11px;color:#AAB8C8;margin-top:12px;">Based on CV quality<br>+ employer criteria</div>
+          <div style="font-size:11px;color:#AAB8C8;margin-top:12px;">{"✨ AI-assessed for this career path" if score_ai else "Based on CV quality + employer criteria"}</div>
+          {('<div style="font-size:11px;color:#445566;margin-top:10px;line-height:1.5;text-align:left;'
+            'background:#F8FAFF;border-radius:8px;padding:10px 12px;">'
+            + score_explanation + '</div>') if score_ai and score_explanation else ""}
         </div>""", unsafe_allow_html=True)
 
     with c_crit:

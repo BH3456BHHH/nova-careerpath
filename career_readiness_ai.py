@@ -406,9 +406,22 @@ def _quick_win(cv_result, criteria_met, career_key):
 
 
 def analyze_career_readiness(cv_text, career_key, cv_result):
-    from gemini_ai import generate_alumni, generate_employers
+    from gemini_ai import generate_alumni, generate_employers, assess_career_readiness
 
     criteria_met = _check_criteria(cv_text, career_key)
+
+    # Career readiness score — try Gemini first, fall back to rule-based
+    gemini_readiness = assess_career_readiness(
+        cv_text, career_key, cv_result.get("overall_pct", 50), criteria_met
+    )
+    if gemini_readiness:
+        score        = gemini_readiness["score"]
+        score_ai     = True
+        score_explanation = gemini_readiness.get("explanation", "")
+    else:
+        score        = _readiness_score(cv_result, criteria_met)
+        score_ai     = False
+        score_explanation = ""
 
     alumni = _filter_alumni(career_key)
     alumni_ai = False
@@ -427,7 +440,9 @@ def analyze_career_readiness(cv_text, career_key, cv_result):
             employers_ai = True
 
     return {
-        "score":        _readiness_score(cv_result, criteria_met),
+        "score":             score,
+        "score_ai":          score_ai,
+        "score_explanation": score_explanation,
         "strengths":    _build_strengths(cv_result, criteria_met, career_key),
         "gaps":         _build_gaps(cv_result, criteria_met, career_key),
         "courses":      _filter_courses(career_key),
