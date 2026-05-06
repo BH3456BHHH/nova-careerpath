@@ -1961,14 +1961,57 @@ def _career_readiness(career_key):
         </div>""", unsafe_allow_html=True)
 
     with c_crit:
-        CRIT_INFO = {
-            "internship":     ("Internship experience",    "Top firms require at least 1 relevant internship. It signals real-world exposure and makes you competitive in applications."),
-            "leadership":     ("Leadership role",          "Employers screen for leadership — whether that's team lead, club president, or event organiser. It shows you take initiative."),
-            "international":  ("International experience", "Studying or working abroad (or being a foreign student at Nova SBE) is a major advantage for globally recruiting firms."),
-            "case_prep":      ("Case / Competition",       "Consulting firms specifically look for case competition experience or consulting club membership on CVs."),
-            "extracurricular":("Extracurricular activity", "Being part of clubs, societies or volunteer work shows you're engaged beyond academics — a key soft signal for employers."),
-            "gpa":            ("GPA signal (16+)",         "Most top firms have a GPA threshold around 16/20. A high grade signals academic rigour and discipline."),
+        _CRIT_BY_PATH = {
+            "consulting": {
+                "relevant_experience": ("Consulting experience",        "Direct consulting or strategy experience is the #1 screening criterion at MBB and top-tier firms."),
+                "case_prep":           ("Case competition / club",       "MBB and tier-2 firms look directly for Nova Case Team, SBE Social Consulting, or case competition experience."),
+                "leadership":          ("Leadership role",               "Employers screen for leadership — team lead, club president, or event organiser all count."),
+                "gpa":                 ("GPA (16/20 or above)",          "Most consulting firms have a GPA threshold around 16/20 as a first screening filter."),
+                "international":       ("International experience",      "An exchange semester or international internship is a strong differentiator for globally recruiting firms."),
+                "extracurricular":     ("Extracurricular activity",      "Club membership, volunteering, or societies show engagement beyond academics."),
+            },
+            "investment_banking": {
+                "relevant_experience": ("Finance / IB internship",       "A finance or IB internship is the single most critical signal — without it, most applications are filtered out."),
+                "internship":          ("Any internship experience",      "Even non-finance internships show professional exposure and work ethic."),
+                "leadership":          ("Leadership role",                "IB firms value initiative — club treasurer, team lead, or any role managing others counts."),
+                "gpa":                 ("GPA (17/20+ preferred)",         "Most bulge-bracket banks set a high GPA bar. A 17/20 or above puts you in a competitive range."),
+                "international":       ("International experience",       "IB is a global industry — international exposure, languages, or exchange programmes are a real advantage."),
+                "extracurricular":     ("Finance club / extracurricular", "Nova Finance Club or Investment Group membership is a direct signal of genuine interest in finance."),
+            },
+            "tech": {
+                "relevant_experience": ("Tech internship / project",     "A tech internship or hands-on technical project is the strongest signal for tech employers."),
+                "internship":          ("Any internship experience",      "Any professional experience demonstrates initiative and a working understanding of business environments."),
+                "leadership":          ("Leadership or product ownership","Leading a project, team, or product — even in a club context — shows the ownership mindset tech firms value."),
+                "gpa":                 ("GPA (signal of rigour)",         "GPA matters less in tech than in banking, but a strong grade still signals the ability to learn fast."),
+                "international":       ("International exposure",         "Cross-cultural experience is valued at global tech companies and helps in collaborative team environments."),
+                "extracurricular":     ("Hackathons / tech clubs",        "Hackathon participation, coding clubs, or data science competitions show passion beyond the classroom."),
+            },
+            "entrepreneurship": {
+                "relevant_experience": ("Own venture or startup",         "Having started or co-founded something — even a small project — is the strongest signal in entrepreneurship."),
+                "internship":          ("Startup or business internship", "Working at a startup or in a business role shows you understand how companies operate under pressure."),
+                "leadership":          ("Leadership & ownership",         "Taking ownership of initiatives — whether a club, event, or project — is the core entrepreneurial signal."),
+                "extracurricular":     ("Entrepreneurship club / society","Nova Entrepreneurs Club or similar involvement shows genuine drive and access to a startup network."),
+                "international":       ("International exposure",         "Exposure to different markets and cultures broadens the commercial thinking that entrepreneurs need."),
+                "gpa":                 ("GPA (less critical here)",       "GPA matters less for entrepreneurship than execution and initiative — but a decent grade still helps."),
+            },
+            "marketing": {
+                "relevant_experience": ("Marketing / brand internship",  "A marketing or brand internship is the clearest signal for FMCG, agency, and brand management roles."),
+                "internship":          ("Any internship experience",      "Any internship shows professional exposure and the ability to work in a structured business environment."),
+                "leadership":          ("Leadership or event organisation","Running a campaign, organising an event, or leading a team shows the coordination skills marketers need."),
+                "extracurricular":     ("Marketing club / creative work", "Nova Marketing Club, brand competitions, or content creation projects all demonstrate genuine passion."),
+                "international":       ("International experience",       "Global brands value international exposure — an exchange or international internship sets you apart."),
+                "gpa":                 ("GPA (16/20 signal)",             "A strong GPA signals analytical ability, which matters increasingly in data-driven marketing roles."),
+            },
+            "sustainability": {
+                "relevant_experience": ("Sustainability / ESG experience","Direct experience in sustainability, ESG, impact investing, or NGO work is the primary screening signal."),
+                "internship":          ("Any internship experience",      "Internships in any sector show professional exposure, but sustainability-adjacent roles carry extra weight."),
+                "leadership":          ("Leadership / project ownership", "Leading an impact initiative, social project, or sustainability committee demonstrates real commitment."),
+                "extracurricular":     ("Values-aligned extracurricular", "Nova Sustainability Club, social consulting, or environmental volunteering are strong differentiators."),
+                "international":       ("International or cross-cultural exposure", "Many sustainability roles are global in scope — international experience and language skills help significantly."),
+                "gpa":                 ("GPA (academic rigour signal)",   "A strong GPA signals the analytical and research ability needed in ESG analysis and sustainability consulting."),
+            },
         }
+        CRIT_INFO = _CRIT_BY_PATH.get(career_key, _CRIT_BY_PATH["consulting"])
         rows_html = ""
         for key, (label, explanation) in CRIT_INFO.items():
             ok   = criteria_met.get(key, False)
