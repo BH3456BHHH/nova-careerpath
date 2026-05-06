@@ -3,7 +3,7 @@ import os
 import requests
 
 # Model ID on OpenRouter — as specified by your professor
-MODEL_ID = "google/gemini-2.5-flash-preview"
+MODEL_ID = "google/gemini-3.1-flash-lite-preview"
 
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
@@ -65,6 +65,7 @@ Return ONLY a JSON object — no markdown, no explanation outside the JSON:
 }}"""
 
     try:
+        print(f"[Gemini] Calling OpenRouter with model {MODEL_ID}...")
         response = requests.post(
             OPENROUTER_URL,
             headers={
@@ -77,6 +78,8 @@ Return ONLY a JSON object — no markdown, no explanation outside the JSON:
             },
             timeout=30,
         )
+        print(f"[Gemini] Response status: {response.status_code}")
+        print(f"[Gemini] Response body: {response.text[:500]}")
         response.raise_for_status()
         text = response.json()["choices"][0]["message"]["content"].strip()
         if "```" in text:
@@ -85,6 +88,9 @@ Return ONLY a JSON object — no markdown, no explanation outside the JSON:
                 if part.startswith("{"):
                     text = part
                     break
-        return json.loads(text)
-    except Exception:
+        result = json.loads(text)
+        print("[Gemini] Success!")
+        return result
+    except Exception as e:
+        print(f"[Gemini] Failed: {e}")
         return None
