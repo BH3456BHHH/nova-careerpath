@@ -596,6 +596,15 @@ def _overview(result):
     st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
 
     # ── Quick Wins ────────────────────────────────────────────────────────────
+    if st.session_state.get("gemini_result"):
+        st.markdown(
+            '<div style="text-align:right;margin-bottom:6px;">'
+            '<span style="background:#EFF6FF;color:#1A56DB;font-size:11px;font-weight:600;'
+            'padding:3px 12px;border-radius:20px;border:1px solid #BFDBFE;">'
+            '✨ Powered by Gemini</span></div>',
+            unsafe_allow_html=True
+        )
+
     tips_html = ""
     for tip in highlights:
         tips_html += (
@@ -1978,6 +1987,14 @@ def _career_readiness(career_key):
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
     # ── Quick Win banner ──────────────────────────────────────────────────────
+    if st.session_state.get("gemini_result"):
+        st.markdown(
+            '<div style="text-align:right;margin-bottom:6px;">'
+            '<span style="background:#EFF6FF;color:#1A56DB;font-size:11px;font-weight:600;'
+            'padding:3px 12px;border-radius:20px;border:1px solid #BFDBFE;">'
+            '✨ Powered by Gemini</span></div>',
+            unsafe_allow_html=True
+        )
     st.markdown(
         f'<div style="background:#EFF6FF;border-left:4px solid #1A56DB;border-radius:10px;'
         f'padding:16px 20px;margin-bottom:4px;">'
