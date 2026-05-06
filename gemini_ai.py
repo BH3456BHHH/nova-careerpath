@@ -1,15 +1,11 @@
 import json
 import os
+import requests
 
-try:
-    import google.generativeai as genai
-    _AVAILABLE = True
-except ImportError:
-    _AVAILABLE = False
+# Model ID on OpenRouter — as specified by your professor
+MODEL_ID = "google/gemini-2.5-flash-preview"
 
-# ── Replace this with the exact model ID your professor gave you ──────────────
-# Ask your professor: "What is the exact model ID?" (e.g. "gemini-2.0-flash-lite")
-MODEL_ID = "gemini-2.0-flash-lite"
+OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
 _CAREER_LABELS = {
     "consulting":         "Management Consulting",
@@ -34,19 +30,14 @@ def _api_key() -> str:
 
 def enhance_cv_feedback(cv_text: str, career_key: str, scores: dict) -> dict | None:
     """
-    Ask Gemini for personalised CV feedback.
+    Ask Gemini via OpenRouter for personalised CV feedback.
     Returns dict with keys: highlights, strengths, gaps, quick_win.
     Returns None silently if the API key is missing or the call fails —
     the app then falls back to the rule-based results automatically.
     """
-    if not _AVAILABLE:
-        return None
     key = _api_key()
     if not key:
         return None
-
-    genai.configure(api_key=key)
-    model = genai.GenerativeModel(MODEL_ID)
 
     career_label = _CAREER_LABELS.get(career_key, career_key)
     prompt = f"""You are an expert career advisor at Nova SBE (Nova School of Business and Economics, Portugal).
@@ -74,8 +65,20 @@ Return ONLY a JSON object — no markdown, no explanation outside the JSON:
 }}"""
 
     try:
-        response = model.generate_content(prompt)
-        text = response.text.strip()
+        response = requests.post(
+            OPENROUTER_URL,
+            headers={
+                "Authorization": f"Bearer {key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": MODEL_ID,
+                "messages": [{"role": "user", "content": prompt}],
+            },
+            timeout=30,
+        )
+        response.raise_for_status()
+        text = response.json()["choices"][0]["message"]["content"].strip()
         if "```" in text:
             for part in text.split("```"):
                 part = part.strip().lstrip("json").strip()
