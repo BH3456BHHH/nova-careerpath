@@ -266,6 +266,8 @@ def _filter_courses(career_key):
     rows     = _load_courses_csv()
     scored   = []
     for r in rows:
+        if r.get("Type", "").strip() != "Elective":
+            continue
         name  = r.get("Course Name", "").lower()
         if not name:
             continue
