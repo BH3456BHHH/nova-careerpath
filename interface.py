@@ -23,6 +23,17 @@ st.markdown("""
 
 * { font-family: 'Inter', sans-serif !important; }
 
+/* Restore Streamlit's icon font (Material Symbols Rounded) — prevents icon names showing as text */
+details > summary > p,
+details > summary > p:first-child,
+details > summary span[data-testid],
+[data-testid="stExpanderToggleIcon"],
+.material-icons, [class*="material-icon"], [class*="MaterialIcon"],
+[class*="symbol"], [class*="Symbol"] {
+    font-family: 'Material Symbols Rounded', 'Material Icons',
+                 'Material Icons Outlined' !important;
+}
+
 #MainMenu, footer, header { visibility: hidden; }
 .block-container { padding: 2rem 2.5rem 3rem 2.5rem !important; max-width: 100% !important; }
 
@@ -1041,7 +1052,7 @@ def _dimension(key, result):
                        rows_html)
         )
 
-        with st.expander("💡 How to add numbers — practical guide"):
+        with st.expander("How to add numbers — practical guide"):
             st.markdown("""
 **Ask yourself these 4 questions for each bullet:**
 
@@ -1127,7 +1138,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                 "No lines with weak verbs found — great job!</div>"
             )
 
-        with st.expander("💡 Verb swaps — quick reference"):
+        with st.expander("Verb swaps — quick reference"):
             st.markdown("\n".join(f"- **{w}** → {r}" for w, r in verb_replacements.items()))
 
         section("Before & After Examples", example_table([
@@ -1206,7 +1217,7 @@ Estimates are fine — "~50 participants" is better than nothing.
             + '</div>'
         )
 
-        with st.expander("💡 How to turn tasks into accomplishments"):
+        with st.expander("How to turn tasks into accomplishments"):
             st.markdown("""
 **The 'So What?' test:** After each bullet, ask: *"So what happened as a result?"*
 
@@ -1288,7 +1299,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                            rows_html)
             )
 
-        with st.expander("💡 Alternatives for the most common verbs"):
+        with st.expander("Alternatives for the most common verbs"):
             st.markdown("""
 | Overused | Alternatives |
 |----------|-------------|
@@ -1362,7 +1373,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                            rows_html)
             )
 
-        with st.expander("💡 How to cut word count without losing impact"):
+        with st.expander("How to cut word count without losing impact"):
             st.markdown("""
 - **Remove the context, keep the action:** "As part of my role in the marketing team, I helped to organise..." → "Organised..."
 - **Cut adverbs:** "successfully delivered", "efficiently managed" → just "Delivered", "Managed"
@@ -1426,7 +1437,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                 + '</div>'
             )
 
-        with st.expander("💡 Common fillers and what to write instead"):
+        with st.expander("Common fillers and what to write instead"):
             st.markdown("""
 | Filler | Better alternative |
 |--------|--------------------|
@@ -1479,7 +1490,7 @@ Estimates are fine — "~50 participants" is better than nothing.
             "</p>"
         )
 
-        with st.expander("💡 How to decide which bullets to keep or cut"):
+        with st.expander("How to decide which bullets to keep or cut"):
             st.markdown("""
 **Rule per role:** minimum 2 bullets (1 looks odd), maximum 3–5 bullets per position.
 
@@ -1544,7 +1555,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                            rows_html)
             )
 
-        with st.expander("💡 How to trim a long bullet"):
+        with st.expander("How to trim a long bullet"):
             st.markdown("""
 **Step 1:** Cut the context/background — start with the action
 **Step 2:** Remove adverbs ("effectively", "successfully", "proactively")
@@ -1606,7 +1617,7 @@ Estimates are fine — "~50 participants" is better than nothing.
         )
         section("Section Checklist", body)
 
-        with st.expander("💡 Recommended CV section structure"):
+        with st.expander("Recommended CV section structure"):
             st.markdown("""
 **Standard section order:**
 1. **Experience** (or Work Experience) — once you have internships/jobs
@@ -1676,7 +1687,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                            rows_html)
             )
 
-        with st.expander("💡 Common pronoun fixes"):
+        with st.expander("Common pronoun fixes"):
             st.markdown("""
 | ❌ With pronoun | ✅ Fixed |
 |----------------|---------|
@@ -1749,7 +1760,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                            rows_html)
             )
 
-        with st.expander("💡 Show don't tell — replacement guide"):
+        with st.expander("Show don't tell — replacement guide"):
             st.markdown("""
 | ❌ Buzzword | ✅ Evidence-based replacement |
 |------------|------------------------------|
@@ -1810,7 +1821,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                            rows_html)
             )
 
-        with st.expander("💡 How to spot and fix passive voice"):
+        with st.expander("How to spot and fix passive voice"):
             st.markdown("""
 **Passive pattern:** `was/were + [past participle]`
 **Active fix:** delete "was/were", make the subject the actor
@@ -1878,7 +1889,7 @@ Estimates are fine — "~50 participants" is better than nothing.
                            rows_html)
             )
 
-        with st.expander("💡 Recommended date format and rules"):
+        with st.expander("Recommended date format and rules"):
             st.markdown("""
 **Recommended format:** `Jan 2024 – Jun 2024`
 
@@ -2245,6 +2256,27 @@ def _results():
     result     = st.session_state.cv_result
     career_key = st.session_state.career_key
 
+    # Re-show sidebar — upload page hides it via CSS that persists in session
+    st.markdown("""
+    <style>
+    section[data-testid="stSidebar"]         { display: flex  !important; visibility: visible !important; }
+    button[data-testid="collapsedControl"],
+    div[data-testid="collapsedControl"]      { display: flex  !important; visibility: visible !important; }
+    </style>
+    """, unsafe_allow_html=True)
+    import streamlit.components.v1 as _c
+    _c.html("""<script>
+    (function(){
+        var doc = window.parent.document;
+        var sb  = doc.querySelector('section[data-testid="stSidebar"]');
+        if (sb) { sb.style.setProperty('display','flex','important');
+                  sb.style.setProperty('visibility','visible','important'); }
+        var btn = doc.querySelector('button[data-testid="collapsedControl"]')
+               || doc.querySelector('div[data-testid="collapsedControl"]');
+        if (btn){ btn.style.setProperty('display','flex','important'); }
+    })();
+    </script>""", height=0)
+
     # Cache career readiness data in session state (recompute if career path changed)
     if result and result.get("raw_text"):
         if (st.session_state.get("career_data_key") != career_key
@@ -2330,6 +2362,10 @@ elif st.session_state.step == "upload":
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
     * { font-family: 'Inter', sans-serif !important; }
+    details > summary > p, details > summary > p:first-child,
+    details > summary span[data-testid], [data-testid="stExpanderToggleIcon"],
+    .material-icons, [class*="material-icon"], [class*="MaterialIcon"], [class*="symbol"] {
+        font-family: 'Material Symbols Rounded', 'Material Icons' !important; }
     /* Full white page */
     .stApp, .stApp > div, section.main, .block-container {
         background: #F5F7FA !important;

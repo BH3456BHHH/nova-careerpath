@@ -493,6 +493,61 @@ def _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key) -> list
 # MAIN SCORING FUNCTION
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# PATH-SPECIFIC DIMENSION WEIGHTS
+# Each dict gives the relative weight of each sub-score within its dimension.
+# Weights per dimension must sum to 1.0.
+# Impact (40 pts): qi, av, acc, rep
+# Brevity (30 pts): ln, fw, bc, bl
+# Style  (30 pts): sec, pp, bw, act, dat
+# ---------------------------------------------------------------------------
+
+PATH_WEIGHTS = {
+    "consulting": {
+        # MBB screens hard on quantification + strong verbs
+        "impact":  {"qi": 0.35, "av": 0.30, "acc": 0.25, "rep": 0.10},
+        "brevity": {"ln": 0.30, "fw": 0.25, "bc": 0.25, "bl": 0.20},
+        "style":   {"sec": 0.20, "pp": 0.25, "bw": 0.20, "act": 0.25, "dat": 0.10},
+    },
+    "investment_banking": {
+        # IB: numbers above all, zero tolerance for filler, precise dates
+        "impact":  {"qi": 0.40, "av": 0.25, "acc": 0.25, "rep": 0.10},
+        "brevity": {"ln": 0.25, "fw": 0.30, "bc": 0.25, "bl": 0.20},
+        "style":   {"sec": 0.15, "pp": 0.25, "bw": 0.15, "act": 0.20, "dat": 0.25},
+    },
+    "tech": {
+        # Tech: what did you BUILD? Accomplishments + no buzzwords
+        "impact":  {"qi": 0.25, "av": 0.20, "acc": 0.40, "rep": 0.15},
+        "brevity": {"ln": 0.25, "fw": 0.20, "bc": 0.25, "bl": 0.30},
+        "style":   {"sec": 0.15, "pp": 0.20, "bw": 0.30, "act": 0.20, "dat": 0.15},
+    },
+    "entrepreneurship": {
+        # Entrepreneurship: results + what you built + initiative
+        "impact":  {"qi": 0.30, "av": 0.20, "acc": 0.40, "rep": 0.10},
+        "brevity": {"ln": 0.30, "fw": 0.20, "bc": 0.25, "bl": 0.25},
+        "style":   {"sec": 0.15, "pp": 0.20, "bw": 0.25, "act": 0.25, "dat": 0.15},
+    },
+    "marketing": {
+        # Marketing: creative verbs + results + no buzzwords (extra penalised)
+        "impact":  {"qi": 0.25, "av": 0.30, "acc": 0.30, "rep": 0.15},
+        "brevity": {"ln": 0.25, "fw": 0.25, "bc": 0.25, "bl": 0.25},
+        "style":   {"sec": 0.15, "pp": 0.25, "bw": 0.35, "act": 0.20, "dat": 0.05},
+    },
+    "sustainability": {
+        # Sustainability: impact stories + sections (volunteering) + active writing
+        "impact":  {"qi": 0.20, "av": 0.20, "acc": 0.40, "rep": 0.20},
+        "brevity": {"ln": 0.25, "fw": 0.25, "bc": 0.25, "bl": 0.25},
+        "style":   {"sec": 0.25, "pp": 0.20, "bw": 0.20, "act": 0.20, "dat": 0.15},
+    },
+}
+
+_DEFAULT_WEIGHTS = {
+    "impact":  {"qi": 0.25, "av": 0.25, "acc": 0.25, "rep": 0.25},
+    "brevity": {"ln": 0.25, "fw": 0.25, "bc": 0.25, "bl": 0.25},
+    "style":   {"sec": 0.20, "pp": 0.20, "bw": 0.20, "act": 0.20, "dat": 0.20},
+}
+
+
 def score_cv(pdf_file, career_key: str) -> dict:
     """
     Score a CV PDF with student-friendly, multi-dimensional analysis.
@@ -516,14 +571,22 @@ def score_cv(pdf_file, career_key: str) -> dict:
     with pdfplumber.open(pdf_file) as _pdf:
         page_count = len(_pdf.pages)
 
+    # ── PATH-SPECIFIC WEIGHTS ────────────────────────────────────────────
+    w = PATH_WEIGHTS.get(career_key, _DEFAULT_WEIGHTS)
+
     # ── IMPACT (40 pts) ──────────────────────────────────────────────────
     qi  = _score_quantifying_impact(text)
     av  = _score_action_verbs(text)
     acc = _score_accomplishments(text)
     rep = _score_repetition(text)
 
-    impact_raw   = (qi["score"] + av["score"] + acc["score"] + rep["score"]) / 40
-    impact_score = round(impact_raw * 40)
+    wi = w["impact"]
+    impact_score = round(
+        (qi["score"]  * wi["qi"] +
+         av["score"]  * wi["av"] +
+         acc["score"] * wi["acc"] +
+         rep["score"] * wi["rep"]) * 4   # 0–10 weighted avg → 0–40
+    )
 
     # ── BREVITY (30 pts) ─────────────────────────────────────────────────
     ln  = _score_length(word_count)
@@ -531,8 +594,13 @@ def score_cv(pdf_file, career_key: str) -> dict:
     bc  = _score_bullet_count(text)
     bl  = _score_bullet_length(text)
 
-    brevity_raw   = (ln["score"] + fw["score"] + bc["score"] + bl["score"]) / 40
-    brevity_score = round(brevity_raw * 30)
+    wb = w["brevity"]
+    brevity_score = round(
+        (ln["score"] * wb["ln"] +
+         fw["score"] * wb["fw"] +
+         bc["score"] * wb["bc"] +
+         bl["score"] * wb["bl"]) * 3   # 0–10 weighted avg → 0–30
+    )
 
     # ── STYLE (30 pts) ───────────────────────────────────────────────────
     sec = _score_sections(text)
@@ -541,8 +609,14 @@ def score_cv(pdf_file, career_key: str) -> dict:
     act = _score_active_voice(text)
     dat = _score_date_consistency(text)
 
-    style_raw   = (sec["score"] + pp["score"] + bw["score"] + act["score"] + dat["score"]) / 50
-    style_score = round(style_raw * 30)
+    ws = w["style"]
+    style_score = round(
+        (sec["score"] * ws["sec"] +
+         pp["score"]  * ws["pp"] +
+         bw["score"]  * ws["bw"] +
+         act["score"] * ws["act"] +
+         dat["score"] * ws["dat"]) * 3   # 0–10 weighted avg → 0–30
+    )
 
     # ── CAREER KEYWORDS (display only — not included in score) ──────────
     kw = _score_career_keywords(text, career_key)

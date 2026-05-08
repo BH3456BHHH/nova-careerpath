@@ -279,16 +279,32 @@ def _filter_clubs(career_key, limit=5):
     return combined[:limit]
 
 
-def _filter_alumni(career_key):
+def _filter_alumni(career_key, limit=5):
     industry = INDUSTRY_MAP.get(career_key, "")
-    # Investment Banking alumni are stored under "Finance" in the CSV
     alt = "finance" if career_key == "investment_banking" else ""
     rows = _load_csv(ALUMNI_CSV)
-    return [
+    candidates = [
         r for r in rows
         if industry.lower() in r.get("Industry", "").lower()
         or (alt and alt in r.get("Industry", "").lower())
-    ][:5]
+    ]
+    # Pick one alumni per company first, then fill remaining slots
+    seen_companies, result = set(), []
+    for r in candidates:
+        company = r.get("Company", "").strip()
+        if company not in seen_companies:
+            seen_companies.add(company)
+            result.append(r)
+        if len(result) >= limit:
+            break
+    # Fill up to limit if not enough unique companies
+    if len(result) < limit:
+        for r in candidates:
+            if r not in result:
+                result.append(r)
+            if len(result) >= limit:
+                break
+    return result
 
 
 _EMPLOYER_META = {
