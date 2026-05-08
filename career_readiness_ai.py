@@ -6,6 +6,7 @@ _DIR = _os.path.dirname(_os.path.abspath(__file__))
 ALUMNI_CSV   = _os.path.join(_DIR, "Alumni Research Database(Alumni Data).csv")
 EMPLOYER_CSV = _os.path.join(_DIR, "Employer_Database_CV_Screening(Consulting).csv")
 COURSES_CSV  = _os.path.join(_DIR, "nova_courses&clubs_database_v3(MNG).csv")
+CLUBS_CSV    = _os.path.join(_DIR, "nova_courses&clubs_database_v3(Student Clubs).csv")
 
 INDUSTRY_MAP = {
     "consulting":         "Consulting",
@@ -59,79 +60,45 @@ COURSE_KEYWORDS = {
     ],
 }
 
-# Clubs at Nova SBE recommended per career path
-CLUBS_BY_CAREER = {
-    "consulting": [
-        {"name": "Nova Case Team",
-         "focus": "Case competitions & MBB prep",
-         "why": "Directly listed by McKinsey, BCG, Bain as a top signal on student CVs. Provides real case training and competition experience."},
-        {"name": "Nova SBE Social Consulting",
-         "focus": "Real consulting projects for NGOs",
-         "why": "Hands-on client projects, deliverables, and presentations — the same skills consulting firms test in interviews."},
-        {"name": "Nova Entrepreneurs Club",
-         "focus": "Strategy, pitching, business cases",
-         "why": "Strong overlap with consulting skills — strategy thinking, structured problem-solving, and client communication."},
-    ],
-    "investment_banking": [
-        {"name": "Nova Finance Club",
-         "focus": "IB, equity research, valuation",
-         "why": "The main pipeline to investment banking internships at Nova — most IB alumni at Goldman, JPMorgan and Rothschild came through this club."},
-        {"name": "Nova Investment Group",
-         "focus": "Portfolio management & stock pitches",
-         "why": "Shows hands-on financial modelling and investment analysis — exactly what IB firms test in applications."},
-        {"name": "Nova Fintech",
-         "focus": "Digital finance & fintech ventures",
-         "why": "Relevant for roles at digital banks, fintech arms of banks, and PE firms focused on tech-enabled financial services."},
-    ],
-    "tech": [
-        {"name": "Nova Data Science Club",
-         "focus": "Python, ML, data projects, hackathons",
-         "why": "Practical technical portfolio — the fastest way to show coding and analytical skills to tech employers."},
-        {"name": "Nova Fintech",
-         "focus": "Tech in financial services & product",
-         "why": "Bridges business and technology — relevant for product management and tech strategy roles."},
-        {"name": "Nova Entrepreneurs Club",
-         "focus": "Startup creation & tech products",
-         "why": "Product thinking, MVP development, and startup mentality — valued at tech companies and scale-ups."},
-    ],
-    "entrepreneurship": [
-        {"name": "Nova Entrepreneurs Club",
-         "focus": "Startup creation, pitching, mentoring",
-         "why": "The core entrepreneurship community at Nova — access to mentors, investors, and competitions."},
-        {"name": "Nova Fintech",
-         "focus": "Fintech ventures & digital products",
-         "why": "Fintech is one of the most active startup sectors — builds relevant network and product experience."},
-        {"name": "Nova SBE Social Consulting",
-         "focus": "Social enterprise & impact projects",
-         "why": "Experience managing real projects end-to-end as a student — directly signals execution ability."},
-    ],
-    "marketing": [
-        {"name": "Nova Marketing Club",
-         "focus": "Brand strategy, campaigns, FMCG",
-         "why": "Top marketing community at Nova — direct connections to P&G, L'Oréal, Unilever, and leading agencies."},
-        {"name": "Nova Entrepreneurs Club",
-         "focus": "Growth marketing & brand building",
-         "why": "Growth marketing for startups is a fast-growing career track — shows initiative and creative thinking."},
-        {"name": "Nova Data Science Club",
-         "focus": "Marketing analytics & data",
-         "why": "Data-driven marketing is the fastest-growing segment — analytics skills set you apart from classic marketers."},
-    ],
-    "sustainability": [
-        {"name": "Nova Sustainability Club",
-         "focus": "ESG, climate, circular economy",
-         "why": "The main sustainability network at Nova — connects to NGOs, ESG consultancies, and impact investment funds."},
-        {"name": "Nova SBE Social Consulting",
-         "focus": "Social impact consulting projects",
-         "why": "Real client projects with social impact organizations — valued experience for ESG and impact roles."},
-        {"name": "Nova Entrepreneurs Club",
-         "focus": "Social entrepreneurship & ventures",
-         "why": "Many sustainability careers involve starting or scaling impact ventures — this club bridges both worlds."},
-    ],
-}
+def _load_clubs_from_csv():
+    """Load all clubs from the Student Clubs CSV into a list of dicts."""
+    clubs = []
+    try:
+        with open(CLUBS_CSV, encoding="utf-8-sig") as f:
+            reader = csv.reader(f, delimiter=";")
+            headers = None
+            for row in reader:
+                if not row or not row[0].strip():
+                    continue
+                if row[0].strip().startswith("Nova SBE") and "Source" in row[0]:
+                    continue
+                if row[0].strip().startswith("Skills and career"):
+                    continue
+                if row[0].strip() == "Club Name":
+                    headers = [c.strip() for c in row]
+                    continue
+                if headers is None:
+                    continue
+                rec = {headers[i]: row[i].strip() if i < len(row) else "" for i in range(len(headers))}
+                clubs.append(rec)
+    except FileNotFoundError:
+        pass
+    return clubs
+
+_CLUBS_CACHE = None
+
+def _get_all_clubs():
+    global _CLUBS_CACHE
+    if _CLUBS_CACHE is None:
+        _CLUBS_CACHE = _load_clubs_from_csv()
+    return _CLUBS_CACHE
 
 EMPLOYER_CRITERIA = {
     "gpa":            [r"\b1[6-9][,.]?\d*\b", r"\b20\b", r"\bgpa\b"],
-    "internship":     ["internship", "intern ", "stage ", "traineeship", "working student"],
+    "internship":     ["internship", "intern ", "stage ", "traineeship", "working student",
+                       "summer analyst", "summer associate", "graduate analyst",
+                       "graduate associate", "graduate programme", "graduate program",
+                       "rotation program", "rotational program", "trainee", "werkstudent"],
     "leadership":     ["led ", "managed ", "president", "vice president", "founder",
                        "director", "head of", "captain", "chair", "organis"],
     "case_prep":      ["case", "consulting club", "case team", "competition", "hackathon"],
@@ -170,10 +137,16 @@ CAREER_EXPERIENCE_KEYWORDS = {
         "product launch", "own business", "own company", "revenue in",
     ],
     "marketing": [
-        "marketing", "brand manager", "digital marketing", "social media manager",
-        "campaign manager", "advertising", "content strategy", "seo", "sem",
-        "crm manager", "brand strategy", "consumer insights", "market research",
-        "media planning", "marketing intern",
+        "marketing", "brand manager", "brand specialist", "brand intern",
+        "brand coordinator", "brand analyst", "brand assistant",
+        "digital marketing", "social media manager", "social media",
+        "campaign manager", "campaign", "advertising", "content strategy",
+        "content marketing", "growth marketing", "performance marketing",
+        "seo", "sem", "crm manager", "brand strategy", "consumer insights",
+        "market research", "media planning", "marketing intern",
+        "fmcg", "consumer goods", "unilever", "l'oreal", "loreal",
+        "p&g", "procter", "lvmh", "nestle", "henkel", "beiersdorf",
+        "noma marketing", "marketing consulting",
     ],
     "sustainability": [
         "sustainability", "esg", "climate", "environmental", "renewable energy",
@@ -287,8 +260,23 @@ def _filter_courses(career_key):
     return result
 
 
-def _filter_clubs(career_key):
-    return CLUBS_BY_CAREER.get(career_key, [])
+def _filter_clubs(career_key, limit=5):
+    primary, secondary = [], []
+    for club in _get_all_clubs():
+        relevance = [r.strip() for r in club.get("Career Relevance", "").split(",")]
+        if career_key not in relevance:
+            continue
+        entry = {
+            "name":  club.get("Club Name", ""),
+            "focus": club.get("Category", ""),
+            "why":   club.get("Description", ""),
+        }
+        if relevance[0] == career_key:
+            primary.append(entry)
+        else:
+            secondary.append(entry)
+    combined = primary + secondary
+    return combined[:limit]
 
 
 def _filter_alumni(career_key):
@@ -303,10 +291,88 @@ def _filter_alumni(career_key):
     ][:5]
 
 
+_EMPLOYER_META = {
+    "consulting": {
+        "criteria": "GPA above 16, case interview skills, consulting internship, leadership role",
+        "timing":   "6–12 months before start date (rolling for some firms)",
+        "reqs":     "Case prep, extracurricular leadership, international experience recommended",
+    },
+    "investment_banking": {
+        "criteria": "GPA above 17, financial modelling skills, IB or finance internship, attention to detail",
+        "timing":   "9–12 months before start date — most deadlines in September–November",
+        "reqs":     "Finance internship, Excel/modelling skills, strong GPA, networking events",
+    },
+    "tech": {
+        "criteria": "Technical skills (coding/data/product), project portfolio, analytical thinking",
+        "timing":   "Rolling basis — apply 3–6 months before desired start date",
+        "reqs":     "Relevant internship or project, technical skills, curiosity and initiative",
+    },
+    "entrepreneurship": {
+        "criteria": "Own venture or startup experience, leadership, execution ability, network",
+        "timing":   "Rolling basis — accelerators and incubators have specific cohort deadlines",
+        "reqs":     "Business idea or venture, proof of execution, pitch deck or prototype",
+    },
+    "marketing": {
+        "criteria": "Marketing or brand internship, creative campaigns, digital skills (SEO/analytics)",
+        "timing":   "6–9 months before start date for large FMCG firms; rolling for agencies",
+        "reqs":     "Marketing internship, creative portfolio, data-driven mindset",
+    },
+    "sustainability": {
+        "criteria": "ESG or sustainability experience, analytical skills, values alignment",
+        "timing":   "Rolling basis — NGOs and impact funds recruit year-round",
+        "reqs":     "Relevant internship or volunteer work, academic knowledge of ESG frameworks",
+    },
+}
+
+def _club_names_lower():
+    """Return a set of all Nova SBE club names in lowercase for employer filtering."""
+    names = set()
+    for club in _get_all_clubs():
+        name = club.get("Club Name", "").strip().lower()
+        if name:
+            names.add(name)
+    return names
+
+def _is_valid_employer(company: str, club_names: set) -> bool:
+    """Return False for student clubs, stealth/unnamed startups, or empty names."""
+    c = company.strip().lower()
+    if not c:
+        return False
+    if c in club_names:
+        return False
+    # Generic non-employer placeholders
+    if c in ("stealth startup", "stealth", "self-employed", "freelance", "n/a", "-"):
+        return False
+    return True
+
 def _filter_employers(career_key):
     industry = INDUSTRY_MAP.get(career_key, "")
     rows     = _load_csv(EMPLOYER_CSV)
-    return [r for r in rows if industry.lower() in r.get("Category", "").lower()][:5]
+    csv_results = [r for r in rows if industry.lower() in r.get("Category", "").lower()][:5]
+    if csv_results:
+        return csv_results
+
+    # Fall back to companies extracted from ALL alumni for this path (no limit)
+    meta       = _EMPLOYER_META.get(career_key, {})
+    alt        = "finance" if career_key == "investment_banking" else ""
+    club_names = _club_names_lower()
+    all_alumni = [
+        r for r in _load_csv(ALUMNI_CSV)
+        if industry.lower() in r.get("Industry", "").lower()
+        or (alt and alt in r.get("Industry", "").lower())
+    ]
+    seen, results = set(), []
+    for a in all_alumni:
+        company = a.get("Company", "").strip()
+        if company not in seen and _is_valid_employer(company, club_names):
+            seen.add(company)
+            results.append({
+                "Company":               company,
+                "Key Evaluation Criteria": meta.get("criteria", ""),
+                "Application Timing":    meta.get("timing", ""),
+                "Typical Requirements":  meta.get("reqs", ""),
+            })
+    return results[:5]
 
 
 def _build_strengths(cv_result, criteria_met, career_key):
@@ -338,18 +404,43 @@ def _build_strengths(cv_result, criteria_met, career_key):
     return strengths[:5]
 
 
+_EXPERIENCE_GAP = {
+    "consulting":         "No consulting experience detected — MBB and strategy firms screen heavily for advisory experience. A consulting internship or case team involvement is the single most important CV signal.",
+    "investment_banking": "No finance or IB experience detected — banks filter almost exclusively by prior finance internships. Add any financial modelling, valuation, or IB internship experience to your CV.",
+    "tech":               "No tech experience or project portfolio detected — employers expect a GitHub repo, Kaggle entry, hackathon, or technical internship. Add any hands-on technical work.",
+    "entrepreneurship":   "No venture or startup activity detected — even a small side project, freelance client, or pitch competition shows the execution mindset that matters most here.",
+    "marketing":          "No brand or campaign experience detected — add a social media project, FMCG internship, brand competition, or digital marketing certificate to your CV.",
+    "sustainability":     "No ESG or sustainability experience detected — a sustainability internship, thesis on ESG topics, or volunteer role in an impact org is the primary screening signal.",
+}
+
+_PATH_EXTRA_GAP = {
+    "consulting":         (lambda c: not c.get("case_prep"),
+                           "No case competition or consulting club found — MBB firms weight this heavily. Join Nova Case Team or enter a case competition this semester."),
+    "investment_banking": (lambda c: not c.get("internship"),
+                           "No finance internship detected — even a non-IB finance role (audit, FP&A, corporate finance) counts and significantly improves your application."),
+    "tech":               (lambda c: not c.get("extracurricular"),
+                           "No coding club, hackathon, or tech competition found — these are a fast signal of genuine technical passion beyond coursework."),
+    "entrepreneurship":   (lambda c: not c.get("leadership"),
+                           "No initiative ownership found — explicitly name any project where you were in charge, not just a contributor."),
+    "marketing":          (lambda c: not c.get("extracurricular"),
+                           "No marketing club or creative project found — NOMA Marketing Consulting or a brand case competition would directly strengthen your profile."),
+    "sustainability":     (lambda c: not c.get("extracurricular"),
+                           "No sustainability club or volunteer work found — Oikos Lisbon or Leadership for Impact are strong signals for ESG employers."),
+}
+
+
 def _build_gaps(cv_result, criteria_met, career_key):
     imp  = cv_result.get("impact", {})
     kw   = cv_result.get("keywords", {})
     gaps = []
-    industry = INDUSTRY_MAP.get(career_key, career_key)
 
-    # Relevant experience is the most critical gap — show it first
+    # Relevant experience — path-specific message
     if not criteria_met.get("relevant_experience"):
-        gaps.append(
-            f"No {industry}-specific experience detected — employers in this field screen heavily for prior field exposure. "
-            f"A CV without a relevant internship or project will rarely pass the first round, regardless of overall quality."
-        )
+        gaps.append(_EXPERIENCE_GAP.get(
+            career_key,
+            f"No {INDUSTRY_MAP.get(career_key, career_key)}-specific experience detected — "
+            "employers screen heavily for prior field exposure before inviting to interviews."
+        ))
 
     qi_lines = imp.get("quantifying_impact", {}).get("quantified_lines", 0)
     if qi_lines < 2:
@@ -358,8 +449,12 @@ def _build_gaps(cv_result, criteria_met, career_key):
         gaps.append("No internship detected — most target employers require at least 1 relevant internship before applying.")
     if not criteria_met.get("leadership"):
         gaps.append("Leadership is a key screening criterion — highlight any role where you led people or took ownership.")
-    if career_key == "consulting" and not criteria_met.get("case_prep"):
-        gaps.append("No case competition or consulting club experience — this is heavily weighted by MBB and top-tier firms.")
+
+    # Path-specific extra gap (different criterion per path)
+    check_fn, message = _PATH_EXTRA_GAP.get(career_key, (lambda c: False, ""))
+    if check_fn(criteria_met) and message not in gaps:
+        gaps.append(message)
+
     if not criteria_met.get("international"):
         gaps.append("International experience is preferred — an exchange semester or internship abroad strengthens your profile significantly.")
     missing_kw = kw.get("missing", [])[:3]
@@ -368,18 +463,19 @@ def _build_gaps(cv_result, criteria_met, career_key):
     return gaps[:5]
 
 
-def _readiness_score(cv_result, criteria_met):
+def _readiness_score(cv_result, criteria_met, career_key=""):
     cv_pct = cv_result.get("overall_pct", 50)
-    # relevant_experience carries the most weight — no field exposure = major penalty
     weights = {
         "relevant_experience": 35,
         "internship":          20,
         "leadership":          15,
         "international":       10,
         "extracurricular":      8,
-        "case_prep":            7,
         "gpa":                  5,
     }
+    # case_prep only counts for consulting — irrelevant for other paths
+    if career_key == "consulting":
+        weights["case_prep"] = 7
     criteria_score = sum(w for k, w in weights.items() if criteria_met.get(k))
     return min(100, max(0, round(cv_pct * 0.35 + criteria_score * 0.65)))
 
@@ -421,7 +517,7 @@ def analyze_career_readiness(cv_text, career_key, cv_result):
         score_ai     = True
         score_explanation = gemini_readiness.get("explanation", "")
     else:
-        score        = _readiness_score(cv_result, criteria_met)
+        score        = _readiness_score(cv_result, criteria_met, career_key)
         score_ai     = False
         score_explanation = ""
 

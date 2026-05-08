@@ -269,6 +269,16 @@ section[data-testid="stSidebar"] .mode-btn-inactive {
 }
 section[data-testid="stSidebar"] .mode-btn-active::before { content: "▶  "; font-size: 9px; }
 
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+    .block-container { padding: 1rem 1rem 2rem 1rem !important; }
+    .page-header { padding: 22px 20px; margin-bottom: 18px; }
+    .page-header h1 { font-size: 20px; }
+    .score-number { font-size: 52px; }
+    .white-card { padding: 16px; }
+    .tip-card { font-size: 12.5px; padding: 12px 13px; }
+}
+
 </style>
 """, unsafe_allow_html=True)
 

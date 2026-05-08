@@ -195,6 +195,7 @@ div[data-testid="stButton"] > button {
 .lp-feat-d { font-size: 13px; color: #667788; line-height: 1.65; }
 
 /* ── FAQ ── */
+.lp-faq-wrap { max-width: 860px; margin: 0 auto; padding: 0 48px 64px; }
 .faq-item {
     background: white;
     border: 1px solid #EAEFF6;
@@ -264,6 +265,76 @@ div[data-testid="stButton"] > button {
 .reveal-delay-1 { transition-delay: 0.1s; }
 .reveal-delay-2 { transition-delay: 0.2s; }
 .reveal-delay-3 { transition-delay: 0.3s; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+    /* Navbar */
+    .lp-nav {
+        padding: 0 18px;
+        height: 56px;
+    }
+    .lp-nav-links .lp-nav-link { display: none; }
+    .lp-nav-cta { padding: 8px 14px; font-size: 12.5px; }
+    .lp-nav-brand-sub { display: none; }
+
+    /* Hero */
+    .lp-hero { padding: 60px 20px 50px; }
+    .lp-h1 { font-size: 32px; letter-spacing: -1px; }
+    .lp-sub { font-size: 14px; }
+    .lp-hero-cta { padding: 13px 28px; font-size: 14px; }
+    .lp-stats { flex-wrap: wrap; gap: 0; margin-top: 40px; }
+    .lp-stat { padding: 14px 20px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.07); width: 50%; }
+    .lp-stat:nth-child(odd) { border-right: 1px solid rgba(255,255,255,0.07); }
+    .lp-stat:nth-last-child(-n+2) { border-bottom: none; }
+    .lp-stat-n { font-size: 28px; }
+
+    /* Sections */
+    .lp-sec { padding: 50px 20px; }
+    .lp-sec-h2 { font-size: 24px; }
+    .lp-sec-p { font-size: 14px; }
+
+    /* Platform mockup — hide sidebar, stack content */
+    .lp-mockup { border-radius: 10px; }
+    .lp-mockup-body { flex-direction: column; height: auto; }
+    .lp-msb { display: none; }
+    .lp-mcon { padding: 14px; }
+    .lp-msrow { flex-direction: column; }
+    .lp-msbox { min-width: 0; }
+
+    /* Before/After grid — single column */
+    .lp-ba-grid { grid-template-columns: 1fr; gap: 16px; }
+
+    /* Steps — single column */
+    .lp-steps { grid-template-columns: 1fr; gap: 16px; }
+
+    /* Trust logos */
+    .lp-trust { padding: 32px 20px; }
+    .lp-trust-logos { gap: 20px; }
+
+    /* Features — single column */
+    .lp-feat-grid { grid-template-columns: 1fr; gap: 14px; }
+
+    /* FAQ */
+    .faq-item summary { font-size: 14px; padding: 15px 16px; }
+    .faq-body { font-size: 13px; }
+
+    /* Quote */
+    .lp-quote { padding: 50px 20px; }
+    .lp-quote-t { font-size: 20px; }
+
+    /* Final CTA */
+    .lp-cta-sec { padding: 50px 20px; }
+    .lp-cta-box { padding: 36px 24px; }
+    .lp-cta-h2 { font-size: 24px; }
+    .lp-cta-btn { padding: 13px 28px; font-size: 14px; }
+
+    /* Footer */
+    .lp-footer { flex-direction: column; gap: 10px; padding: 20px 18px; text-align: center; }
+    .lp-footer-l { flex-direction: column; gap: 6px; }
+
+    /* FAQ wrapper */
+    .lp-faq-wrap { padding: 0 16px 40px; }
+}
 </style>
 """
 
@@ -494,7 +565,7 @@ def landing_page():
          "Yes, positively. The Career Readiness check automatically detects if you are a non-Portuguese national studying at Nova SBE, or if you have exchange/abroad experience. Being an international student IS a form of international exposure that employers value — it will show as ✅ in your Career Readiness report."),
     ]
 
-    faq_html = '<div style="max-width:860px;margin:0 auto;padding:0 48px 64px">'
+    faq_html = '<div class="lp-faq-wrap">'
     for q, a in faqs:
         faq_html += f'<details class="faq-item"><summary>{q}</summary><div class="faq-body">{a}</div></details>'
     faq_html += '</div>'
