@@ -280,6 +280,9 @@ section[data-testid="stSidebar"] .mode-btn-inactive {
 }
 section[data-testid="stSidebar"] .mode-btn-active::before { content: "▶  "; font-size: 9px; }
 
+/* ── Mobile nav (hidden by default, shown on mobile) ── */
+.mobile-nav { display: none; }
+
 /* ── MOBILE RESPONSIVE ── */
 @media (max-width: 768px) {
     .block-container { padding: 1rem 1rem 2rem 1rem !important; }
@@ -288,6 +291,38 @@ section[data-testid="stSidebar"] .mode-btn-active::before { content: "▶  "; fo
     .score-number { font-size: 52px; }
     .white-card { padding: 16px; }
     .tip-card { font-size: 12.5px; padding: 12px 13px; }
+
+    /* Mobile top nav — pill buttons */
+    .mobile-nav {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 16px;
+        position: sticky;
+        top: 0;
+        z-index: 99;
+        background: #F0F4F8;
+        padding: 10px 0;
+    }
+    .mob-nav-btn {
+        flex: 1;
+        text-align: center;
+        padding: 11px 8px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none !important;
+        background: white;
+        color: #445566 !important;
+        border: 1px solid #E4ECF4;
+        transition: all 0.15s;
+    }
+    .mob-nav-btn.mob-nav-active {
+        background: #0A1628;
+        color: white !important;
+        border-color: #0A1628;
+        box-shadow: 0 2px 8px rgba(10,22,40,0.2);
+    }
+    .mob-nav-btn:active { transform: scale(0.97); }
 }
 
 </style>
@@ -2308,6 +2343,28 @@ def _results():
     """, height=0)
 
     _sidebar(result)
+
+    # ── MOBILE TOP NAV (only visible on mobile via CSS) ───────────────────
+    if st.query_params.get("tab") == "cv":
+        st.query_params.clear()
+        st.session_state.main_tab = "cv"
+        st.session_state.cv_tab   = "overview"
+        st.rerun()
+    if st.query_params.get("tab") == "career":
+        st.query_params.clear()
+        st.session_state.main_tab = "career"
+        st.rerun()
+
+    is_cv     = st.session_state.main_tab == "cv"
+    is_career = st.session_state.main_tab == "career"
+    cv_active     = "mob-nav-active" if is_cv else ""
+    career_active = "mob-nav-active" if is_career else ""
+    st.markdown(f"""
+    <div class="mobile-nav">
+      <a href="?tab=cv" target="_top" class="mob-nav-btn {cv_active}">📄 CV Check</a>
+      <a href="?tab=career" target="_top" class="mob-nav-btn {career_active}">🎯 Readiness</a>
+    </div>
+    """, unsafe_allow_html=True)
 
     if st.session_state.main_tab == "career":
         _career_readiness(career_key)

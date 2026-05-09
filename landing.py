@@ -180,12 +180,20 @@ div[data-testid="stButton"] > button {
 .lp-trust-lbl { font-size: 11px; color: #99AABB; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 24px; }
 .lp-trust-logos { display: flex; justify-content: center; align-items: center; gap: 44px; flex-wrap: wrap; }
 .lp-trust-logo { font-size: 15px; font-weight: 700; color: #B0C4D8; }
-.lp-logo-img {
-    height: 32px; width: auto; max-width: 110px;
-    object-fit: contain; filter: grayscale(100%) opacity(0.55);
-    transition: filter 0.2s;
+.lp-logo-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px; height: 64px;
+    text-decoration: none;
+    transition: transform 0.2s;
 }
-.lp-logo-img:hover { filter: grayscale(0%) opacity(1); }
+.lp-logo-link:hover { transform: scale(1.1); }
+.lp-logo-img {
+    max-width: 48px; max-height: 48px;
+    width: auto; height: auto;
+    object-fit: contain;
+}
 
 /* ── FEATURES ── */
 .lp-feat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 860px; margin: 0 auto; }
@@ -489,13 +497,13 @@ def landing_page():
     <div class="lp-trust">
       <div class="lp-trust-lbl">Nova SBE alumni work at</div>
       <div class="lp-trust-logos">
-        <img src="https://logo.clearbit.com/mckinsey.com"    alt="McKinsey"       class="lp-logo-img" title="McKinsey & Company">
-        <img src="https://logo.clearbit.com/goldmansachs.com" alt="Goldman Sachs" class="lp-logo-img" title="Goldman Sachs">
-        <img src="https://logo.clearbit.com/bcg.com"         alt="BCG"            class="lp-logo-img" title="Boston Consulting Group">
-        <img src="https://logo.clearbit.com/google.com"      alt="Google"         class="lp-logo-img" title="Google">
-        <img src="https://logo.clearbit.com/jpmorgan.com"    alt="J.P. Morgan"    class="lp-logo-img" title="J.P. Morgan">
-        <img src="https://logo.clearbit.com/deloitte.com"    alt="Deloitte"       class="lp-logo-img" title="Deloitte">
-        <img src="https://logo.clearbit.com/bain.com"        alt="Bain"           class="lp-logo-img" title="Bain & Company">
+        <a class="lp-logo-link" href="https://www.mckinsey.com" target="_blank" rel="noopener" title="McKinsey & Company"><img src="https://www.google.com/s2/favicons?domain=mckinsey.de&sz=128" alt="McKinsey" class="lp-logo-img"></a>
+        <a class="lp-logo-link" href="https://www.goldmansachs.com" target="_blank" rel="noopener" title="Goldman Sachs"><img src="https://www.google.com/s2/favicons?domain=goldmansachs.com&sz=128" alt="Goldman Sachs" class="lp-logo-img"></a>
+        <a class="lp-logo-link" href="https://www.bcg.com" target="_blank" rel="noopener" title="Boston Consulting Group"><img src="https://www.google.com/s2/favicons?domain=bcg.com&sz=128" alt="BCG" class="lp-logo-img"></a>
+        <a class="lp-logo-link" href="https://www.google.com" target="_blank" rel="noopener" title="Google"><img src="https://www.google.com/s2/favicons?domain=google.com&sz=128" alt="Google" class="lp-logo-img"></a>
+        <a class="lp-logo-link" href="https://www.jpmorgan.com" target="_blank" rel="noopener" title="J.P. Morgan"><img src="https://www.google.com/s2/favicons?domain=jpmorgan.com&sz=128" alt="J.P. Morgan" class="lp-logo-img"></a>
+        <a class="lp-logo-link" href="https://www.deloitte.com" target="_blank" rel="noopener" title="Deloitte"><img src="https://www.google.com/s2/favicons?domain=deloitte.com&sz=128" alt="Deloitte" class="lp-logo-img"></a>
+        <a class="lp-logo-link" href="https://www.bain.com" target="_blank" rel="noopener" title="Bain & Company"><img src="https://www.google.com/s2/favicons?domain=bain.com&sz=128" alt="Bain" class="lp-logo-img"></a>
       </div>
     </div>
     """, unsafe_allow_html=True)
