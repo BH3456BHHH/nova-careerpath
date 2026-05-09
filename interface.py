@@ -280,8 +280,12 @@ section[data-testid="stSidebar"] .mode-btn-inactive {
 }
 section[data-testid="stSidebar"] .mode-btn-active::before { content: "▶  "; font-size: 9px; }
 
-/* ── Mobile nav (hidden by default, shown on mobile) ── */
-.mobile-nav { display: none; }
+/* ── Mobile dropdown menu (hidden on desktop, shown on mobile) ── */
+.mobile-menu-anchor { display: none; }
+/* Hide the expander right after the anchor on desktop */
+[data-testid="element-container"]:has(.mobile-menu-anchor) + [data-testid="element-container"] {
+    display: none !important;
+}
 
 /* ── MOBILE RESPONSIVE ── */
 @media (max-width: 768px) {
@@ -292,37 +296,59 @@ section[data-testid="stSidebar"] .mode-btn-active::before { content: "▶  "; fo
     .white-card { padding: 16px; }
     .tip-card { font-size: 12.5px; padding: 12px 13px; }
 
-    /* Mobile top nav — pill buttons */
-    .mobile-nav {
-        display: flex;
-        gap: 8px;
-        margin-bottom: 16px;
-        position: sticky;
-        top: 0;
-        z-index: 99;
-        background: #F0F4F8;
-        padding: 10px 0;
+    /* Show mobile menu, hide desktop sidebar */
+    .mobile-menu-anchor { display: block; }
+    [data-testid="element-container"]:has(.mobile-menu-anchor) + [data-testid="element-container"] {
+        display: block !important;
     }
-    .mob-nav-btn {
-        flex: 1;
-        text-align: center;
-        padding: 11px 8px;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 600;
-        text-decoration: none !important;
-        background: white;
-        color: #445566 !important;
-        border: 1px solid #E4ECF4;
-        transition: all 0.15s;
+    section[data-testid="stSidebar"] { display: none !important; }
+    button[data-testid="collapsedControl"],
+    div[data-testid="collapsedControl"] { display: none !important; }
+
+    /* Mobile menu expander — compact floating dropdown */
+    [data-testid="element-container"]:has(.mobile-menu-anchor) + [data-testid="element-container"] {
+        max-width: 65% !important;
+        margin-left: auto !important;
+        margin-right: 0 !important;
     }
-    .mob-nav-btn.mob-nav-active {
-        background: #0A1628;
-        color: white !important;
-        border-color: #0A1628;
-        box-shadow: 0 2px 8px rgba(10,22,40,0.2);
+    [data-testid="element-container"]:has(.mobile-menu-anchor) + [data-testid="element-container"] div[data-testid="stExpander"] {
+        background: white !important;
+        border: 1px solid #E4ECF4 !important;
+        border-radius: 10px !important;
+        box-shadow: 0 4px 16px rgba(10,22,40,0.1) !important;
+        margin-bottom: 12px !important;
+        overflow: hidden !important;
     }
-    .mob-nav-btn:active { transform: scale(0.97); }
+    [data-testid="element-container"]:has(.mobile-menu-anchor) + [data-testid="element-container"] div[data-testid="stExpander"] summary {
+        padding: 7px 12px !important;
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: #0A1628 !important;
+    }
+    [data-testid="element-container"]:has(.mobile-menu-anchor) + [data-testid="element-container"] div[data-testid="stExpander"] details > div {
+        padding: 4px 8px 8px !important;
+    }
+    /* Smaller, denser buttons inside the mobile menu */
+    [data-testid="element-container"]:has(.mobile-menu-anchor) ~ [data-testid="element-container"] div[data-testid="stExpander"] div[data-testid="stButton"] button {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+        min-height: 0 !important;
+        height: auto !important;
+        margin: 0 !important;
+        line-height: 1.3 !important;
+    }
+    [data-testid="element-container"]:has(.mobile-menu-anchor) ~ [data-testid="element-container"] div[data-testid="stExpander"] div[data-testid="stButton"] {
+        margin-bottom: 2px !important;
+    }
+    .nav-section-mobile {
+        font-size: 8px !important;
+        font-weight: 700 !important;
+        letter-spacing: 1px !important;
+        text-transform: uppercase !important;
+        color: #8AA0B8 !important;
+        padding: 6px 2px 2px !important;
+        margin: 0 !important;
+    }
 }
 
 </style>
@@ -491,6 +517,46 @@ def _sidebar(result):
     st.sidebar.markdown('<hr style="border-color:#1E3A5F;margin:12px 0;">', unsafe_allow_html=True)
     if st.sidebar.button("← Start over", use_container_width=True):
         go_to("landing"); st.rerun()
+
+
+def _mobile_menu(result):
+    """Inline dropdown menu for mobile — mirrors the desktop sidebar."""
+    st.markdown('<div class="mobile-menu-anchor"></div>', unsafe_allow_html=True)
+    is_cv     = st.session_state.main_tab == "cv"
+    is_career = st.session_state.main_tab == "career"
+
+    with st.expander("Menu", expanded=False):
+        is_overview = is_cv and st.session_state.cv_tab == "overview"
+        is_actions  = is_cv and st.session_state.cv_tab == "actions"
+
+        if st.button("📄 CV Check", key="m_mode_cv",
+                     type="primary" if is_cv else "secondary",
+                     use_container_width=True):
+            st.session_state.main_tab = "cv"
+            st.session_state.cv_tab   = "overview"
+            st.rerun()
+        if st.button("🎯 Career Readiness", key="m_mode_cr",
+                     type="primary" if is_career else "secondary",
+                     use_container_width=True):
+            st.session_state.main_tab = "career"
+            st.rerun()
+
+        if is_cv and result:
+            if st.button("📊 Overview", key="m_nav_overview",
+                         type="primary" if is_overview else "secondary",
+                         use_container_width=True):
+                st.session_state.cv_tab = "overview"
+                st.rerun()
+            if st.button("💪 Action Verbs", key="m_nav_actions",
+                         type="primary" if is_actions else "secondary",
+                         use_container_width=True):
+                st.session_state.cv_tab = "actions"
+                st.rerun()
+
+        if st.button("↻ Start over", key="m_restart", use_container_width=True):
+            for k in ("cv_result", "gemini_result", "career_data"):
+                st.session_state.pop(k, None)
+            go_to("landing"); st.rerun()
 
 
 # =============================================================================
@@ -2343,28 +2409,7 @@ def _results():
     """, height=0)
 
     _sidebar(result)
-
-    # ── MOBILE TOP NAV (only visible on mobile via CSS) ───────────────────
-    if st.query_params.get("tab") == "cv":
-        st.query_params.clear()
-        st.session_state.main_tab = "cv"
-        st.session_state.cv_tab   = "overview"
-        st.rerun()
-    if st.query_params.get("tab") == "career":
-        st.query_params.clear()
-        st.session_state.main_tab = "career"
-        st.rerun()
-
-    is_cv     = st.session_state.main_tab == "cv"
-    is_career = st.session_state.main_tab == "career"
-    cv_active     = "mob-nav-active" if is_cv else ""
-    career_active = "mob-nav-active" if is_career else ""
-    st.markdown(f"""
-    <div class="mobile-nav">
-      <a href="?tab=cv" target="_top" class="mob-nav-btn {cv_active}">📄 CV Check</a>
-      <a href="?tab=career" target="_top" class="mob-nav-btn {career_active}">🎯 Readiness</a>
-    </div>
-    """, unsafe_allow_html=True)
+    _mobile_menu(result)
 
     if st.session_state.main_tab == "career":
         _career_readiness(career_key)
