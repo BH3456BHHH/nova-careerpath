@@ -39,7 +39,11 @@ div[data-testid="stButton"] > button {
     height: 64px;
     display: flex; align-items: center; justify-content: space-between;
 }
-.lp-nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.lp-nav-brand,
+.lp-nav-brand:hover,
+.lp-nav-brand *,
+.lp-nav-brand:hover * { text-decoration: none !important; }
+.lp-nav-brand { display: flex; align-items: center; gap: 10px; }
 .lp-nav-logo-mark {
     width: 34px; height: 34px; background: #0A1628; border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
@@ -276,14 +280,48 @@ div[data-testid="stButton"] > button {
 
 /* ── MOBILE RESPONSIVE ── */
 @media (max-width: 768px) {
-    /* Navbar */
-    .lp-nav {
-        padding: 0 18px;
-        height: 56px;
+    /* Hide entire navbar on mobile — go straight to hero with the badge */
+    .lp-nav { display: none !important; }
+}
+/* Kill ALL Streamlit top spacing on mobile (outside @media because of selector specificity) */
+@media (max-width: 768px) {
+    html, body, #root, .stApp,
+    [data-testid="stAppViewContainer"],
+    [data-testid="stApp"],
+    [data-testid="stMain"],
+    [data-testid="stMainBlockContainer"],
+    [data-testid="stAppViewBlockContainer"],
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"],
+    [data-testid="stSidebar"],
+    section.main, .main, .appview-container,
+    .block-container, .block-container > div,
+    section.main > div, section.main > div > div {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
     }
-    .lp-nav-links .lp-nav-link { display: none; }
-    .lp-nav-cta { padding: 8px 14px; font-size: 12.5px; }
-    .lp-nav-brand-sub { display: none; }
+    [data-testid="stHeader"],
+    [data-testid="stToolbar"],
+    [data-testid="stDecoration"],
+    header { display: none !important; height: 0 !important; min-height: 0 !important; }
+
+    /* Kill element-container and vertical block gaps on landing */
+    [data-testid="element-container"],
+    [data-testid="stMarkdownContainer"],
+    [data-testid="stMarkdown"] {
+        margin: 0 !important;
+        padding: 0 !important;
+        min-height: 0 !important;
+    }
+    [data-testid="stVerticalBlock"] {
+        gap: 0 !important;
+    }
+    [data-testid="stVerticalBlockBorderWrapper"] {
+        gap: 0 !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
 
     /* Hero */
     .lp-hero { padding: 60px 20px 50px; }
