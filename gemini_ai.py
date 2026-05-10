@@ -21,11 +21,14 @@ def _api_key() -> str:
     try:
         import streamlit as st
         key = st.secrets.get("GEMINI_API_KEY", "")
-        if key:
+        if key and "PASTE_YOUR" not in key:
             return key
     except Exception:
         pass
-    return os.environ.get("GEMINI_API_KEY", "")
+    env_key = os.environ.get("GEMINI_API_KEY", "")
+    if env_key and "PASTE_YOUR" not in env_key:
+        return env_key
+    return ""
 
 
 def _call(prompt: str) -> str | None:
@@ -210,6 +213,47 @@ _READINESS_CRITERIA = {
 - International or cross-cultural exposure: 10%
 - GPA: 5%""",
 }
+
+
+def chat_with_cv(question: str, cv_text: str, career_key: str, scores: dict, history: list) -> str | None:
+    """
+    Answer a follow-up question from the user about their CV / career path.
+    `history` is a list of {"role": "user"|"assistant", "content": "..."} dicts.
+    Returns the assistant's reply text, or None on failure.
+    """
+    career_label = _CAREER_LABELS.get(career_key, career_key)
+
+    history_text = ""
+    for msg in history[-6:]:  # last 6 messages = 3 turns
+        role = "Student" if msg["role"] == "user" else "Advisor"
+        history_text += f"{role}: {msg['content']}\n"
+
+    prompt = f"""You are an expert career advisor at Nova SBE (Nova School of Business and Economics, Portugal).
+A student is targeting a career in {career_label} and has uploaded their CV for analysis.
+
+CV scores (for context):
+- Overall: {scores.get('overall_pct', 0)}/100
+- Impact: {scores.get('impact', {}).get('score', 0)}/40
+- Brevity: {scores.get('brevity', {}).get('score', 0)}/30
+- Style: {scores.get('style', {}).get('score', 0)}/30
+
+The student's CV:
+---
+{cv_text[:4000]}
+---
+
+Previous conversation:
+{history_text if history_text else '(this is the first question)'}
+
+Student's new question: {question}
+
+Answer directly, specifically, and practically. Reference actual content from THEIR CV when relevant.
+Keep answers concise (2–4 paragraphs max). Use bullet points if helpful. Be honest — if something on the CV is weak, say so and suggest how to fix it.
+
+Do not return JSON or markdown fences — just plain text the student can read."""
+
+    print(f"[Gemini] Chat question for {career_label}: {question[:60]}...")
+    return _call(prompt)
 
 
 def assess_career_readiness(cv_text: str, career_key: str, cv_pct: int, criteria_met: dict) -> dict | None:

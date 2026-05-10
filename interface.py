@@ -2349,6 +2349,145 @@ def _career_readiness(career_key):
             unsafe_allow_html=True
         )
 
+    # ── CV Chat ──────────────────────────────────────────────────────────────
+    _render_cv_chat(result, career_key)
+
+
+def _render_cv_chat(result, career_key):
+    """Conversational follow-up — ask Gemini personalised questions about the CV."""
+    from gemini_ai import chat_with_cv
+
+    chat_key = f"cv_chat_{career_key}"
+    if chat_key not in st.session_state:
+        st.session_state[chat_key] = []
+    history = st.session_state[chat_key]
+
+    st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+    st.markdown(
+        '<div style="background:white;border-radius:14px;padding:24px 28px;'
+        'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
+        '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
+        'text-transform:uppercase;margin-bottom:4px;">💬 Ask about your CV'
+        ' &nbsp;<span style="background:#EFF6FF;color:#1A56DB;font-size:9px;font-weight:600;'
+        'padding:2px 8px;border-radius:20px;border:1px solid #BFDBFE;vertical-align:middle;">'
+        '✨ AI</span></div>'
+        '<div style="font-size:12px;color:#667788;margin-bottom:4px;">'
+        'Personalised follow-up — your full CV stays in context</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
+    # CSS — pill chips + hidden chat avatars
+    st.markdown("""
+    <style>
+    /* Hide avatars across all Streamlit versions */
+    [data-testid="stChatMessage"] > span:first-child,
+    [data-testid="stChatMessage"] > div:first-child:not(:only-child),
+    [data-testid="stChatMessage"] [data-testid*="vatar" i],
+    [data-testid="stChatMessage"] [data-testid*="chatAvatarIcon"],
+    [data-testid="stChatMessage"] [class*="ChatMessageAvatar"] {
+        display: none !important;
+    }
+    [data-testid="stChatMessage"] {
+        background: transparent !important;
+        padding: 4px 0 !important;
+        gap: 0 !important;
+    }
+    [data-testid="stChatMessage"] > *:last-child {
+        max-width: 100% !important;
+        width: 100% !important;
+        background: white;
+        border: 1px solid #E8EFF8;
+        border-radius: 12px;
+        padding: 12px 16px;
+        margin: 4px 0;
+    }
+    /* Pill chips — target the columns block right after our anchor */
+    [data-testid="element-container"]:has(.cv-chip-anchor) + [data-testid="element-container"] [data-testid="stHorizontalBlock"] {
+        gap: 8px !important;
+        margin-bottom: 8px;
+    }
+    [data-testid="element-container"]:has(.cv-chip-anchor) + [data-testid="element-container"] [data-testid="column"] {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+    }
+    [data-testid="element-container"]:has(.cv-chip-anchor) + [data-testid="element-container"] button[kind="secondary"] {
+        background: #F4F7FB !important;
+        border: 1px solid #E4ECF4 !important;
+        color: #445566 !important;
+        border-radius: 999px !important;
+        padding: 6px 14px !important;
+        font-size: 12.5px !important;
+        font-weight: 500 !important;
+        min-height: 0 !important;
+        line-height: 1.3 !important;
+        box-shadow: none !important;
+        transition: all 0.15s !important;
+        width: auto !important;
+        white-space: nowrap !important;
+    }
+    [data-testid="element-container"]:has(.cv-chip-anchor) + [data-testid="element-container"] button[kind="secondary"]:hover {
+        background: #EBF2FF !important;
+        border-color: #BFDBFE !important;
+        color: #1A56DB !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # Suggestion chips (only when chat is empty)
+    suggestions = {
+        "consulting":         ["How can I make my CV more McKinsey-ready?", "Which bullet point is my weakest?", "What's missing for an MBB internship?"],
+        "investment_banking": ["Which line should I quantify first?", "Is my finance experience strong enough for IBD?", "How do I show financial modelling skills better?"],
+        "tech":               ["How do I show technical skills better?", "Should I add a GitHub link?", "What's missing for a product role?"],
+        "entrepreneurship":   ["Does my CV show entrepreneurial drive?", "How do I frame side projects?", "What would a VC notice first?"],
+        "marketing":          ["How do I show creative impact?", "Which bullets need numbers?", "What would Unilever notice first?"],
+        "sustainability":     ["How do I show ESG commitment?", "Which experiences signal impact best?", "What's missing for an ESG role?"],
+    }
+    chips = suggestions.get(career_key, [])
+
+    if not history and chips:
+        # Anchor div — used by CSS :has() to scope chip styling
+        st.markdown('<div class="cv-chip-anchor"></div>', unsafe_allow_html=True)
+        cols = st.columns(len(chips))
+        for i, chip in enumerate(chips):
+            with cols[i]:
+                if st.button(chip, key=f"{chat_key}_chip_{i}"):
+                    st.session_state[f"{chat_key}_pending"] = chip
+                    st.rerun()
+
+    # Render conversation history
+    for msg in history:
+        with st.chat_message(msg["role"]):
+            st.markdown(msg["content"])
+
+    # Handle pending question (from chip click)
+    pending = st.session_state.pop(f"{chat_key}_pending", None)
+    user_input = pending or st.chat_input("Ask anything about your CV or career path…", key=f"{chat_key}_input")
+
+    if user_input:
+        history.append({"role": "user", "content": user_input})
+        with st.chat_message("user"):
+            st.markdown(user_input)
+        with st.chat_message("assistant"):
+            with st.spinner("Thinking..."):
+                reply = chat_with_cv(
+                    question    = user_input,
+                    cv_text     = result.get("raw_text", ""),
+                    career_key  = career_key,
+                    scores      = result,
+                    history     = history[:-1],
+                )
+            if reply:
+                st.markdown(reply)
+                history.append({"role": "assistant", "content": reply})
+            else:
+                err = "⚠️ Couldn't reach the AI. Check that the Gemini API key is configured (online) or set locally via `.streamlit/secrets.toml`."
+                st.markdown(err)
+                history.append({"role": "assistant", "content": err})
+        st.session_state[chat_key] = history
+        st.rerun()
+
 
 # =============================================================================
 # RESULTS ROUTER
