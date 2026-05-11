@@ -185,11 +185,27 @@ def render_comparison_panel(old: dict, new_cv_result: dict, new_career_key: str)
                        f'that change.</div>')
 
     st.markdown(f"""
-    <div style="background:white;border-radius:16px;padding:24px 28px;
-                border:1px solid #E4ECF4;box-shadow:0 2px 16px rgba(10,22,40,0.06);
-                margin-bottom:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;
-                  margin-bottom:14px;">
+    <style>
+    .nova-diff-card {{
+      background:white;border-radius:16px;padding:24px 28px;
+      border:1px solid #E4ECF4;box-shadow:0 2px 16px rgba(10,22,40,0.06);
+      margin-bottom:20px;
+    }}
+    .nova-diff-head {{
+      display:flex;align-items:center;justify-content:space-between;
+      gap:12px;margin-bottom:14px;flex-wrap:wrap;
+    }}
+    .nova-diff-grid {{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;
+    }}
+    @media (max-width:640px) {{
+      .nova-diff-card {{ padding:18px 18px; }}
+      .nova-diff-grid {{ grid-template-columns:1fr; }}
+      .nova-diff-head {{ flex-direction:column;align-items:flex-start;gap:6px; }}
+    }}
+    </style>
+    <div class="nova-diff-card">
+      <div class="nova-diff-head">
         <div>
           <div style="font-size:11px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;
                       text-transform:uppercase;">Progress since last scan</div>
@@ -200,8 +216,7 @@ def render_comparison_panel(old: dict, new_cv_result: dict, new_career_key: str)
         <div style="font-size:36px;font-weight:800;color:{overall_color};">{overall_arrow}</div>
       </div>
 
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;
-                  margin-top:12px;">
+      <div class="nova-diff-grid">
         <div style="background:#F8FAFC;border-radius:10px;padding:12px 14px;">
           <div style="font-size:11px;color:#94A3B8;text-transform:uppercase;letter-spacing:0.8px;">Impact</div>
           <div style="font-size:20px;font-weight:800;color:{imp_color};margin-top:4px;">{imp_arrow}</div>

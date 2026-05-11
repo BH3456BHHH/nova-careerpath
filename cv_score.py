@@ -264,14 +264,32 @@ def _strip_bullet(line: str) -> str:
 # EXTRACT TEXT
 # ---------------------------------------------------------------------------
 
-def extract_text(pdf_file) -> str:
+class CVReadError(Exception):
+    """Raised when the uploaded PDF can't be read or contains no text."""
+
+
+def extract_text(pdf_file) -> tuple[str, int]:
+    """Return (text, page_count). Opens the PDF exactly once."""
     text = ""
-    with pdfplumber.open(pdf_file) as pdf:
-        for page in pdf.pages:
-            page_text = page.extract_text()
-            if page_text:
-                text += page_text + "\n"
-    return text
+    try:
+        if hasattr(pdf_file, "seek"):
+            pdf_file.seek(0)
+        with pdfplumber.open(pdf_file) as pdf:
+            page_count = len(pdf.pages)
+            for page in pdf.pages:
+                page_text = page.extract_text()
+                if page_text:
+                    text += page_text + "\n"
+    except Exception as e:
+        raise CVReadError(
+            "We couldn't open this PDF. It may be corrupted or password-protected."
+        ) from e
+    if not text.strip():
+        raise CVReadError(
+            "We couldn't read any text from this PDF. "
+            "Is it a scanned image? Try exporting your CV as a text-based PDF."
+        )
+    return text, page_count
 
 
 # ---------------------------------------------------------------------------
@@ -566,10 +584,8 @@ def score_cv(pdf_file, career_key: str) -> dict:
     word_count     : int
     raw_text       : str
     """
-    text       = extract_text(pdf_file)
+    text, page_count = extract_text(pdf_file)
     word_count = len(text.split())
-    with pdfplumber.open(pdf_file) as _pdf:
-        page_count = len(_pdf.pages)
 
     # ── PATH-SPECIFIC WEIGHTS ────────────────────────────────────────────
     w = PATH_WEIGHTS.get(career_key, _DEFAULT_WEIGHTS)

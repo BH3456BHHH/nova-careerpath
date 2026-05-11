@@ -2,7 +2,7 @@ import streamlit as st
 import re
 from logic import get_recommendations
 from data import CAREER_PATHS
-from cv_score import score_cv
+from cv_score import score_cv, CVReadError
 from landing import landing_page, LANDING_CSS
 from career_readiness_ai import analyze_career_readiness
 from gemini_ai import enhance_cv_feedback
@@ -2058,7 +2058,12 @@ def _career_readiness(career_key):
             go_to("upload"); st.rerun()
         return
 
-    data         = analyze_career_readiness(cv_text=result["raw_text"], career_key=career_key, cv_result=result)
+    # Use cached career_data if available (set by _results() — saves redundant Gemini calls)
+    data = st.session_state.get("career_data")
+    if not data or st.session_state.get("career_data_key") != career_key:
+        data = analyze_career_readiness(cv_text=result["raw_text"], career_key=career_key, cv_result=result)
+        st.session_state["career_data"]     = data
+        st.session_state["career_data_key"] = career_key
     score        = data["score"]
     strengths    = data["strengths"]
     gaps         = data["gaps"]
@@ -2520,6 +2525,25 @@ def _results():
     result     = st.session_state.cv_result
     career_key = st.session_state.career_key
 
+    # Guard: if user landed here without scanning a CV, send them back gracefully
+    if not result or not result.get("raw_text"):
+        st.markdown("""
+        <div style="background:white;border-radius:14px;padding:28px 32px;margin-top:40px;
+                    border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);
+                    max-width:560px;margin-left:auto;margin-right:auto;">
+          <div style="font-size:16px;font-weight:700;color:#0A1628;margin-bottom:6px;">
+            No CV scanned yet
+          </div>
+          <div style="font-size:13px;color:#667788;margin-bottom:18px;">
+            Upload your CV first to see your results.
+          </div>
+        </div>""", unsafe_allow_html=True)
+        _, c, _ = st.columns([1, 1, 1])
+        with c:
+            if st.button("← Go to upload", type="primary", use_container_width=True, key="results_no_cv_back"):
+                go_to("upload"); st.rerun()
+        return
+
     # Re-show sidebar — upload page hides it via CSS that persists in session
     st.markdown("""
     <style>
@@ -2829,11 +2853,17 @@ elif st.session_state.step == "upload":
                     st.session_state.pop("cv_prior", None)
                 else:
                     st.session_state["cv_prior"] = prior
-                    st.success(
-                        f"Previous scan loaded — saved on "
-                        f"{prior.get('saved_at','?')[:10]} · "
-                        f"score {prior.get('overall_pct','?')}/100"
-                    )
+                    st.markdown(f"""
+                    <div style="background:#ECFDF5;border:1px solid #BBF7D0;border-radius:10px;
+                                padding:12px 16px;margin-top:12px;display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:18px;">📂</span>
+                        <div style="font-size:12px;color:#16A34A;line-height:1.4;">
+                            Previous scan loaded — saved on
+                            <b>{prior.get('saved_at','?')[:10]}</b> ·
+                            score <b>{prior.get('overall_pct','?')}/100</b>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
             elif "cv_prior" in st.session_state:
                 # User removed the file
                 st.session_state.pop("cv_prior", None)
@@ -2847,16 +2877,30 @@ elif st.session_state.step == "upload":
         with cn:
             if uploaded:
                 if st.button("Analyse CV →", type="primary", use_container_width=True, key="upload_go"):
-                    with st.spinner("Analysing your CV..."):
-                        st.session_state.cv_result = score_cv(uploaded, career_key)
-                        st.session_state.gemini_result = enhance_cv_feedback(
-                            st.session_state.cv_result["raw_text"],
-                            career_key,
-                            st.session_state.cv_result,
+                    try:
+                        with st.spinner("Analysing your CV..."):
+                            st.session_state.cv_result = score_cv(uploaded, career_key)
+                            try:
+                                st.session_state.gemini_result = enhance_cv_feedback(
+                                    st.session_state.cv_result["raw_text"],
+                                    career_key,
+                                    st.session_state.cv_result,
+                                )
+                            except Exception as e:
+                                # AI is optional — local scoring still works
+                                print(f"[Gemini] enhance failed: {e}")
+                                st.session_state.gemini_result = None
+                        st.session_state.main_tab = "cv"
+                        st.session_state.cv_tab   = "overview"
+                        go_to("results"); st.rerun()
+                    except CVReadError as e:
+                        st.error(f"❌ {e}")
+                    except Exception as e:
+                        st.error(
+                            "❌ Something went wrong while analysing your CV. "
+                            "Please try again with a different file."
                         )
-                    st.session_state.main_tab = "cv"
-                    st.session_state.cv_tab   = "overview"
-                    go_to("results"); st.rerun()
+                        print(f"[score_cv] unexpected error: {e}")
             else:
                 st.button("Analyse CV →", type="primary", use_container_width=True,
                           key="upload_go_dis", disabled=True)
