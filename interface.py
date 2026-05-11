@@ -6,6 +6,11 @@ from cv_score import score_cv
 from landing import landing_page, LANDING_CSS
 from career_readiness_ai import analyze_career_readiness
 from gemini_ai import enhance_cv_feedback
+from cv_history import (
+    parse_uploaded_save,
+    render_comparison_panel,
+    render_save_button,
+)
 
 st.set_page_config(
     page_title="Nova · CV Intelligence",
@@ -601,6 +606,25 @@ def _overview(result):
             You're in the <strong style="color:#60B8FF">{pct_lb}</strong> of student CVs.
         </p>
     </div>""", unsafe_allow_html=True)
+
+    # ── Comparison with previous save (if user uploaded one) ─────────────────
+    _prior = st.session_state.get("cv_prior")
+    if _prior:
+        render_comparison_panel(
+            old=_prior,
+            new_cv_result=result,
+            new_career_key=st.session_state.get("career_key", ""),
+        )
+
+    # ── Save / download current scan ─────────────────────────────────────────
+    c_save_l, c_save_m, c_save_r = st.columns([1, 2, 1])
+    with c_save_m:
+        render_save_button(result, st.session_state.get("career_key", ""), key="save_scan_overview")
+        st.markdown(
+            '<p style="text-align:center;font-size:11px;color:#94A3B8;margin:6px 0 18px;">'
+            'Stored only on your device. Upload it next time to see your progress.</p>',
+            unsafe_allow_html=True,
+        )
 
     # ── Row 1: Score card + Scorecard ────────────────────────────────────────
     c_score, c_card = st.columns([1, 2], gap="large")
@@ -2786,6 +2810,34 @@ elif st.session_state.step == "upload":
             </div>
             """, unsafe_allow_html=True)
 
+        # ── Optional: previous save for comparison ──────────────────────────
+        with st.expander("Have a previous save? Compare your progress (optional)", expanded=False):
+            st.markdown(
+                '<p style="font-size:12px;color:#6A8AA8;margin:0 0 10px 0;">'
+                'Drop the <b>.json</b> file you downloaded after a previous scan. '
+                'We will show what changed.</p>',
+                unsafe_allow_html=True,
+            )
+            prior_file = st.file_uploader(
+                "", type=["json"], key="prior_save_upload",
+                label_visibility="collapsed",
+            )
+            if prior_file is not None:
+                prior, err = parse_uploaded_save(prior_file)
+                if err:
+                    st.error(err)
+                    st.session_state.pop("cv_prior", None)
+                else:
+                    st.session_state["cv_prior"] = prior
+                    st.success(
+                        f"Previous scan loaded — saved on "
+                        f"{prior.get('saved_at','?')[:10]} · "
+                        f"score {prior.get('overall_pct','?')}/100"
+                    )
+            elif "cv_prior" in st.session_state:
+                # User removed the file
+                st.session_state.pop("cv_prior", None)
+
         # ── Buttons always at the same position ─────────────────────────────
         st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
         cb, cn = st.columns([1, 1])
@@ -2811,7 +2863,9 @@ elif st.session_state.step == "upload":
 
         st.markdown("""
         <p style="text-align:center;font-size:12px;color:#AAB8C8;margin-top:16px;">
-            🔒 Your CV is never stored — analysed in real time and immediately discarded.
+            🔒 Your CV is never stored on our servers — analysed in real time and discarded
+            immediately. You can optionally download your results as a file to keep on
+            your own device for future comparison.
         </p>
         """, unsafe_allow_html=True)
 
