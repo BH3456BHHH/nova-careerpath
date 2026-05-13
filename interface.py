@@ -2879,6 +2879,10 @@ elif st.session_state.step == "upload":
                 if st.button("Analyse CV →", type="primary", use_container_width=True, key="upload_go"):
                     try:
                         with st.spinner("Analysing your CV..."):
+                            # New scan → wipe any chat history from previous CVs
+                            # so old Q&As don't appear next to the new analysis
+                            for _k in [k for k in st.session_state.keys() if k.startswith("cv_chat_")]:
+                                st.session_state.pop(_k, None)
                             st.session_state.cv_result = score_cv(uploaded, career_key)
                             try:
                                 st.session_state.gemini_result = enhance_cv_feedback(
