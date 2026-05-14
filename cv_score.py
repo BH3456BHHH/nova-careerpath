@@ -489,9 +489,9 @@ def _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key, has_pho
 
     if has_photo:
         tips.append(
-            "⚠️ Photo detected — most UK/US firms (consulting, banking, tech) screen out "
-            "CVs with photos to avoid bias claims. Remove it unless you're applying in "
-            "Germany/Austria/Switzerland, where photos are still common."
+            "⚠️ Photo detected — usually a red flag for consulting, banking and tech roles. "
+            "May be welcomed in marketing or creative fields. Industry-dependent — consider "
+            "removing unless your target industry expects one."
         )
 
     if av["score"] < 6:
