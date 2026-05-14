@@ -268,9 +268,16 @@ class CVReadError(Exception):
     """Raised when the uploaded PDF can't be read or contains no text."""
 
 
-def extract_text(pdf_file) -> tuple[str, int]:
-    """Return (text, page_count). Opens the PDF exactly once."""
+def extract_text(pdf_file) -> tuple[str, int, bool]:
+    """Return (text, page_count, has_photo). Opens the PDF exactly once.
+
+    `has_photo` is True if the PDF contains any embedded image larger than
+    100x100 pixels (a threshold that excludes thin lines, tiny icons and
+    bullet-decoration glyphs, but reliably catches profile photos).
+    """
     text = ""
+    has_photo = False
+    PHOTO_MIN_PX = 100   # smallest plausible profile photo
     try:
         if hasattr(pdf_file, "seek"):
             pdf_file.seek(0)
@@ -280,6 +287,16 @@ def extract_text(pdf_file) -> tuple[str, int]:
                 page_text = page.extract_text()
                 if page_text:
                     text += page_text + "\n"
+                # Detect embedded images that look like a profile photo
+                for img in (page.images or []):
+                    try:
+                        w = abs(img.get("x1", 0) - img.get("x0", 0))
+                        h = abs(img.get("y1", 0) - img.get("y0", 0))
+                    except Exception:
+                        continue
+                    if w >= PHOTO_MIN_PX and h >= PHOTO_MIN_PX:
+                        has_photo = True
+                        break
     except Exception as e:
         raise CVReadError(
             "We couldn't open this PDF. It may be corrupted or password-protected."
@@ -289,7 +306,7 @@ def extract_text(pdf_file) -> tuple[str, int]:
             "We couldn't read any text from this PDF. "
             "Is it a scanned image? Try exporting your CV as a text-based PDF."
         )
-    return text, page_count
+    return text, page_count, has_photo
 
 
 # ---------------------------------------------------------------------------
@@ -463,12 +480,19 @@ def _score_career_keywords(text: str, career_key: str) -> dict:
 # ENCOURAGEMENT MESSAGES — positive, student-friendly
 # ---------------------------------------------------------------------------
 
-def _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key) -> list:
+def _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key, has_photo=False) -> list:
     """
     Returns a list of actionable, encouraging tips.
     Phrased as 'quick wins' rather than failures.
     """
     tips = []
+
+    if has_photo:
+        tips.append(
+            "⚠️ Photo detected — most UK/US firms (consulting, banking, tech) screen out "
+            "CVs with photos to avoid bias claims. Remove it unless you're applying in "
+            "Germany/Austria/Switzerland, where photos are still common."
+        )
 
     if av["score"] < 6:
         tips.append("💡 Quick win: swap a few weak verbs like 'worked on' or 'helped' for power verbs like 'led', 'built' or 'delivered' — it makes a big difference!")
@@ -584,7 +608,7 @@ def score_cv(pdf_file, career_key: str) -> dict:
     word_count     : int
     raw_text       : str
     """
-    text, page_count = extract_text(pdf_file)
+    text, page_count, has_photo = extract_text(pdf_file)
     word_count = len(text.split())
 
     # ── PATH-SPECIFIC WEIGHTS ────────────────────────────────────────────
@@ -666,7 +690,7 @@ def score_cv(pdf_file, career_key: str) -> dict:
         encouragement = "🚀 You're on the right track! Every CV is a work in progress — follow the tips below and you'll see a big improvement."
 
     # Highlights
-    highlights = _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key)
+    highlights = _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key, has_photo=has_photo)
 
     return {
         "overall_pct"  : overall_pct,
@@ -700,7 +724,8 @@ def score_cv(pdf_file, career_key: str) -> dict:
         },
         "keywords"  : kw,
         "highlights": highlights,
-        "word_count": word_count,
-        "page_count": page_count,
-        "raw_text"  : text,
+        "word_count"    : word_count,
+        "page_count"    : page_count,
+        "photo_detected": has_photo,
+        "raw_text"      : text,
     }

@@ -607,6 +607,28 @@ def _overview(result):
         </p>
     </div>""", unsafe_allow_html=True)
 
+    # ── Photo detection warning (UK/US firms screen these out) ───────────────
+    if result.get("photo_detected"):
+        st.markdown("""
+        <div style="background:linear-gradient(135deg,#FEF2F2,#FFF5F5);
+                    border:1px solid #FCA5A5;border-left:5px solid #DC2626;
+                    border-radius:12px;padding:18px 22px;margin-bottom:20px;
+                    display:flex;align-items:flex-start;gap:14px;">
+          <div style="font-size:26px;line-height:1;flex-shrink:0;">⚠️</div>
+          <div>
+            <div style="font-size:14px;font-weight:800;color:#991B1B;margin-bottom:4px;">
+              Photo detected on your CV
+            </div>
+            <div style="font-size:13px;color:#7F1D1D;line-height:1.55;">
+              UK and US firms — including all top consulting, banking and tech employers —
+              routinely screen out CVs with photos to avoid bias claims. Strong candidates
+              are rejected for this alone. <b>Remove the photo</b> unless you're applying
+              in Germany, Austria or Switzerland, where photos are still expected.
+            </div>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
     # ── Comparison with previous save (if user uploaded one) ─────────────────
     _prior = st.session_state.get("cv_prior")
     if _prior:
