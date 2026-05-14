@@ -495,38 +495,38 @@ def _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key, has_pho
         )
 
     if av["score"] < 6:
-        tips.append("💡 Quick win: swap a few weak verbs like 'worked on' or 'helped' for power verbs like 'led', 'built' or 'delivered' — it makes a big difference!")
+        tips.append("Quick win: swap a few weak verbs like 'worked on' or 'helped' for power verbs like 'led', 'built' or 'delivered' — it makes a big difference.")
     elif av["score"] < 9:
-        tips.append("✅ Good use of action verbs! Try replacing one or two remaining weak verbs to push this even higher.")
+        tips.append("Good use of action verbs. Try replacing one or two remaining weak verbs to push this even higher.")
 
     if qi["quantified_lines"] == 0:
-        tips.append("💡 Quick win: add at least one number to your CV — e.g. team size, % improvement or event attendance. Recruiters love specifics!")
+        tips.append("Quick win: add at least one number to your CV — e.g. team size, % improvement or event attendance. Recruiters look for specifics.")
     elif qi["quantified_lines"] < 3:
-        tips.append(f"✅ Good — you already have {qi['quantified_lines']} line(s) with numbers. Adding one or two more will really strengthen your impact.")
+        tips.append(f"You already have {qi['quantified_lines']} line(s) with numbers. Adding one or two more will strengthen your impact.")
 
     if acc["score"] < 5:
-        tips.append("💡 Try rewriting one bullet point to show a result, not just a task. For example: 'Organised weekly meetings' → 'Organised weekly meetings for a 12-person team, improving coordination'.")
+        tips.append("Try rewriting one bullet point to show a result, not just a task. For example: 'Organised weekly meetings' → 'Organised weekly meetings for a 12-person team, improving coordination'.")
 
     if fw["score"] < 7:
-        tips.append(f"💡 Remove a few filler words to make your writing sharper: {', '.join(fw['filler_found'][:4])}.")
+        tips.append(f"Remove a few filler words to make your writing sharper: {', '.join(fw['filler_found'][:4])}.")
 
     if bw["score"] < 7 and bw["buzzwords_found"]:
-        tips.append(f"💡 Consider cutting these overused words — recruiters see them too often: {', '.join(bw['buzzwords_found'][:4])}.")
+        tips.append(f"Consider cutting these overused words — recruiters see them too often: {', '.join(bw['buzzwords_found'][:4])}.")
 
     if pp["score"] < 7:
-        tips.append("💡 Remove personal pronouns (I, my, we) — CVs are written without them. Just start with the verb: 'Led a team of 5' instead of 'I led a team of 5'.")
+        tips.append("Remove personal pronouns (I, my, we) — CVs are written without them. Just start with the verb: 'Led a team of 5' instead of 'I led a team of 5'.")
 
     if act["score"] < 6:
-        tips.append("💡 Try using active voice — instead of 'was responsible for organising', write 'organised'.")
+        tips.append("Try using active voice — instead of 'was responsible for organising', write 'organised'.")
 
     if sec["sections_missing"]:
-        tips.append(f"💡 Consider adding these sections to make your CV more complete: {', '.join(sec['sections_missing'])}.")
+        tips.append(f"Consider adding these sections to make your CV more complete: {', '.join(sec['sections_missing'])}.")
 
     if len(kw["missing"]) > 6:
-        tips.append(f"💡 Add a few {career_key}-relevant keywords naturally into your CV: {', '.join(kw['missing'][:4])}.")
+        tips.append(f"Add a few {career_key}-relevant keywords naturally into your CV: {', '.join(kw['missing'][:4])}.")
 
     if not tips:
-        tips.append("🌟 Your CV is looking really strong — you're well on your way to standing out!")
+        tips.append("Your CV is looking really strong — you're well on your way to standing out.")
 
     return tips
 
@@ -681,13 +681,13 @@ def score_cv(pdf_file, career_key: str) -> dict:
 
     # Encouragement message
     if overall_pct >= 80:
-        encouragement = "🌟 Excellent CV! You're standing out from the crowd — a few small tweaks and this is recruiter-ready."
+        encouragement = "Excellent CV. You're standing out from the crowd — a few small tweaks and this is recruiter-ready."
     elif overall_pct >= 65:
-        encouragement = "👍 Solid CV! You have a great foundation — a couple of improvements will make it shine."
+        encouragement = "Solid CV. You have a great foundation — a couple of improvements will make it shine."
     elif overall_pct >= 50:
-        encouragement = "💪 Good start! You're already doing a lot right. Focus on the quick wins below to level up."
+        encouragement = "Good start. You're already doing a lot right — focus on the quick wins below to level up."
     else:
-        encouragement = "🚀 You're on the right track! Every CV is a work in progress — follow the tips below and you'll see a big improvement."
+        encouragement = "You're on the right track. Every CV is a work in progress — follow the tips below and you'll see a big improvement."
 
     # Highlights
     highlights = _build_highlights(av, qi, acc, fw, bw, pp, act, sec, kw, career_key, has_photo=has_photo)

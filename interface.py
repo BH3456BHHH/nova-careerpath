@@ -416,7 +416,7 @@ def _sidebar(result):
     )
 
     if st.sidebar.button(
-        "📄  CV Check",
+        "CV Check",
         use_container_width=True,
         type="primary" if is_cv else "secondary",
         key="sb_cv"
@@ -426,7 +426,7 @@ def _sidebar(result):
         st.rerun()
 
     if st.sidebar.button(
-        "🎯  Career Readiness",
+        "Career Readiness",
         use_container_width=True,
         type="primary" if is_career else "secondary",
         key="sb_career"
@@ -497,8 +497,8 @@ def _sidebar(result):
                 st.session_state.cv_tab = tab_key
 
         st.sidebar.markdown('<p class="nav-section">Results & Feedback</p>', unsafe_allow_html=True)
-        _nav("📊  Overview",       "overview")
-        _nav("💪  Action Verbs",   "actions")
+        _nav("Overview",       "overview")
+        _nav("Action Verbs",   "actions")
 
         st.sidebar.markdown('<p class="nav-section">Impact</p>', unsafe_allow_html=True)
         _nav(f"Quantifying Impact  {qi}/10",  "qi")
@@ -534,25 +534,25 @@ def _mobile_menu(result):
         is_overview = is_cv and st.session_state.cv_tab == "overview"
         is_actions  = is_cv and st.session_state.cv_tab == "actions"
 
-        if st.button("📄 CV Check", key="m_mode_cv",
+        if st.button("CV Check", key="m_mode_cv",
                      type="primary" if is_cv else "secondary",
                      use_container_width=True):
             st.session_state.main_tab = "cv"
             st.session_state.cv_tab   = "overview"
             st.rerun()
-        if st.button("🎯 Career Readiness", key="m_mode_cr",
+        if st.button("Career Readiness", key="m_mode_cr",
                      type="primary" if is_career else "secondary",
                      use_container_width=True):
             st.session_state.main_tab = "career"
             st.rerun()
 
         if is_cv and result:
-            if st.button("📊 Overview", key="m_nav_overview",
+            if st.button("Overview", key="m_nav_overview",
                          type="primary" if is_overview else "secondary",
                          use_container_width=True):
                 st.session_state.cv_tab = "overview"
                 st.rerun()
-            if st.button("💪 Action Verbs", key="m_nav_actions",
+            if st.button("Action Verbs", key="m_nav_actions",
                          type="primary" if is_actions else "secondary",
                          use_container_width=True):
                 st.session_state.cv_tab = "actions"
@@ -2063,7 +2063,7 @@ def _career_readiness(career_key):
 
     st.markdown(f"""
     <div class="page-header">
-        <h1>🎯 Career Readiness — {career['name']}</h1>
+        <h1>Career Readiness — {career['name']}</h1>
         <p>Your personalised overview based on real Nova SBE alumni, courses and employers.</p>
     </div>""", unsafe_allow_html=True)
 
@@ -2221,7 +2221,7 @@ def _career_readiness(career_key):
         f'<div style="background:#EFF6FF;border-left:4px solid #1A56DB;border-radius:10px;'
         f'padding:16px 20px;margin-bottom:4px;">'
         f'<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1px;'
-        f'text-transform:uppercase;margin-bottom:5px;">⚡ Your #1 action right now</div>'
+        f'text-transform:uppercase;margin-bottom:5px;">Your #1 action right now</div>'
         f'<div style="font-size:14px;color:#0A1628;line-height:1.6;">{quick_win}</div></div>',
         unsafe_allow_html=True
     )
@@ -2243,7 +2243,7 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#16A34A;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:14px;">✅ Your Strengths</div>'
+            'text-transform:uppercase;margin-bottom:14px;">Your Strengths</div>'
             + items_html + '</div>',
             unsafe_allow_html=True
         )
@@ -2260,7 +2260,7 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#EF4444;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:14px;">⚠️ Gaps to Close</div>'
+            'text-transform:uppercase;margin-bottom:14px;">Gaps to Close</div>'
             + items_html + '</div>',
             unsafe_allow_html=True
         )
@@ -2294,7 +2294,7 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:4px;">📚 Recommended Courses</div>'
+            'text-transform:uppercase;margin-bottom:4px;">Recommended Courses</div>'
             '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
             'Nova SBE courses most relevant for your target career</div>'
             + course_html + '</div>',
@@ -2317,7 +2317,7 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:4px;">🏛️ Clubs to Join</div>'
+            'text-transform:uppercase;margin-bottom:4px;">Clubs to Join</div>'
             '<div style="font-size:12px;color:#667788;margin-bottom:14px;">'
             'Nova SBE clubs that directly strengthen your profile</div>'
             + clubs_html + '</div>',
@@ -2357,7 +2357,7 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:4px;">🎓 Nova SBE Alumni'
+            'text-transform:uppercase;margin-bottom:4px;">Nova SBE Alumni'
             + (' &nbsp;<span style="background:#EFF6FF;color:#1A56DB;font-size:9px;font-weight:600;'
                'padding:2px 8px;border-radius:20px;border:1px solid #BFDBFE;vertical-align:middle;">'
                '✨ AI</span>' if alumni_ai else '') + '</div>'
@@ -2381,7 +2381,7 @@ def _career_readiness(career_key):
                     f'<div style="font-size:11px;color:#667788;margin-top:2px;">{criteria}</div>'
                     f'<div style="font-size:11px;color:#889AAA;margin-top:1px;">{reqs}</div>'
                     f'<div style="font-size:11px;color:#1A56DB;font-weight:600;margin-top:3px;">'
-                    f'📅 Apply: {timing}</div></div>'
+                    f'Apply: {timing}</div></div>'
                 )
         else:
             emp_html = '<div style="font-size:13px;color:#889AAA;">No employer data yet.</div>'
@@ -2389,7 +2389,7 @@ def _career_readiness(career_key):
             '<div style="background:white;border-radius:14px;padding:22px 24px;'
             'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
             '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-            'text-transform:uppercase;margin-bottom:4px;">🏢 Target Employers'
+            'text-transform:uppercase;margin-bottom:4px;">Target Employers'
             + (' &nbsp;<span style="background:#EFF6FF;color:#1A56DB;font-size:9px;font-weight:600;'
                'padding:2px 8px;border-radius:20px;border:1px solid #BFDBFE;vertical-align:middle;">'
                '✨ AI</span>' if employers_ai else '') + '</div>'
@@ -2417,7 +2417,7 @@ def _render_cv_chat(result, career_key):
         '<div style="background:white;border-radius:14px;padding:24px 28px;'
         'border:1px solid #E8EFF8;box-shadow:0 2px 12px rgba(10,22,40,0.06);">'
         '<div style="font-size:10px;font-weight:700;color:#1A56DB;letter-spacing:1.2px;'
-        'text-transform:uppercase;margin-bottom:4px;">💬 Ask about your CV'
+        'text-transform:uppercase;margin-bottom:4px;">Ask about your CV'
         ' &nbsp;<span style="background:#EFF6FF;color:#1A56DB;font-size:9px;font-weight:600;'
         'padding:2px 8px;border-radius:20px;border:1px solid #BFDBFE;vertical-align:middle;">'
         '✨ AI</span></div>'
