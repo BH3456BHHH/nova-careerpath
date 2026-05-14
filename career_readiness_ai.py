@@ -94,7 +94,7 @@ def _get_all_clubs():
     return _CLUBS_CACHE
 
 EMPLOYER_CRITERIA = {
-    "gpa":            [r"\b1[6-9][,.]?\d*\b", r"\b20\b", r"\bgpa\b"],
+    # GPA is handled separately via _gpa_meets_threshold() — needs per-path logic
     "internship":     ["internship", "intern ", "stage ", "traineeship", "working student",
                        "summer analyst", "summer associate", "graduate analyst",
                        "graduate associate", "graduate programme", "graduate program",
@@ -212,6 +212,69 @@ def _load_courses_csv():
     return rows
 
 
+def _gpa_meets_threshold(text: str, career_key: str) -> bool:
+    """True if the CV mentions a GPA that meets the path-specific minimum.
+
+    Thresholds reflect the labels shown in the UI:
+      consulting 16/20, investment_banking 17/20, marketing 16/20,
+      tech / entrepreneurship / sustainability 14/20 (rigour signal only).
+
+    Latin honors / first-class always count, regardless of path.
+    """
+    THRESHOLDS_20 = {
+        "consulting":         16.0,
+        "investment_banking": 17.0,
+        "tech":               14.0,
+        "entrepreneurship":   14.0,
+        "marketing":          16.0,
+        "sustainability":     14.0,
+    }
+    # ~equivalent US 4-scale thresholds
+    THRESHOLDS_4 = {
+        "consulting":         3.5,
+        "investment_banking": 3.7,
+        "tech":               3.0,
+        "entrepreneurship":   3.0,
+        "marketing":          3.5,
+        "sustainability":     3.0,
+    }
+    threshold_20 = THRESHOLDS_20.get(career_key, 14.0)
+    threshold_4  = THRESHOLDS_4.get(career_key, 3.0)
+
+    text_lower = text.lower()
+
+    # Latin honors / UK first-class always pass (signal top performance)
+    honors = [
+        r"\bsumma\s+cum\s+laude\b",
+        r"\bmagna\s+cum\s+laude\b",
+        r"\bcum\s+laude\b",
+        r"\bfirst[-\s]class\s+honou?rs?\b",
+        r"\bwith\s+distinction\b",
+    ]
+    if any(re.search(p, text_lower) for p in honors):
+        return True
+
+    # Portuguese 20-scale: X/20 or X,Y/20 or X.Y/20
+    for m in re.finditer(r"\b(\d{1,2})(?:[,.](\d+))?\s*/\s*20\b", text_lower):
+        whole = int(m.group(1))
+        frac_str = m.group(2) or ""
+        frac = int(frac_str) / (10 ** len(frac_str)) if frac_str else 0.0
+        value = whole + frac
+        if 0 < value <= 20 and value >= threshold_20:
+            return True
+
+    # US 4-scale: X.Y/4 or X.Y/4.0
+    for m in re.finditer(r"\b(\d)[,.](\d+)\s*/\s*4(?:\.0)?\b", text_lower):
+        whole = int(m.group(1))
+        frac_str = m.group(2)
+        frac = int(frac_str) / (10 ** len(frac_str))
+        value = whole + frac
+        if value >= threshold_4:
+            return True
+
+    return False
+
+
 def _check_criteria(cv_text, career_key=""):
     text        = cv_text.lower()
     first_lines = text[:800]
@@ -226,6 +289,7 @@ def _check_criteria(cv_text, career_key=""):
             for p in patterns
         )
     met["international"] = is_foreign or has_abroad
+    met["gpa"]           = _gpa_meets_threshold(cv_text, career_key)
 
     # Career-specific experience: does the CV show field-relevant roles/employers?
     exp_kws = CAREER_EXPERIENCE_KEYWORDS.get(career_key, [])
